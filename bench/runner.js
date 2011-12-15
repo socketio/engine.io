@@ -53,5 +53,6 @@ benchmarks_files.forEach(function (file) {
  */
 
 var start = Date.now();
+if (!first) process.exit(1);
 console.log('\n  Starting benchmark '.grey + first.yellow);
 benchmarks[first].run();
