@@ -7,6 +7,7 @@
         "debug": "0.6.0"
       , "engine.io-client": "git://github.com/LearnBoost/engine.io-client.git#78f2471e29"
       , "websocket.io": "0.1.6"
+      , "policyfile": "0.0.5"
     }
   , "devDependencies": {
         "mocha": "*"
