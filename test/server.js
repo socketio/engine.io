@@ -358,6 +358,15 @@ describe('server', function () {
         });
       });
     });
+    it('should abort upgrade if socket is closed (#35)', function (done) {
+      var engine = listen({ allowUpgrades: true }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          socket.close();
+          done();
+        });
+      });
+    });
   });
 
   describe('messages', function () {
