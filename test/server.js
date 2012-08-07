@@ -480,6 +480,190 @@ describe('server', function () {
     });
   });
 
+  describe('conflation', function () {
+    it('should arrive from server to client as-is', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+        , conflater: function(x) { return x; }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          conn.close();
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should not arrive from server to client', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+        , conflater: function(x) { return []; }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a');
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(0);
+              done();
+            }, 50);
+          });
+
+          conn.close();
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            i++;
+          });
+        });
+      });
+    });
+
+    it('should arrive from server to client twice', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+          , conflater: function(x) {
+              var duped = [];
+              for (var i = 0; i < x.length; i++) {
+                duped.push(x[i]);
+                duped.push(x[i]);
+              }
+              return duped;
+          }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , expected = ['a', 'a']
+          , i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a');
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(expected.length);
+              done();
+            }, 50);
+          });
+
+          conn.close();
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+              expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
+
+    it('should arrive from server to client as-is (multiple)', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+        , conflater: function(x) { return x; }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , expected = ['a', 'b']
+          , i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          conn.send('b');
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(expected.length);
+              done();
+            }, 50);
+          });
+
+          conn.close();
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+              expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
+
+    it('should not arrive from server to client (multiple)', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+        , conflater: function(x) { return []; }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          conn.send('b');
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(0);
+              done();
+            }, 50);
+          });
+
+          conn.close();
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            i++;
+          });
+        });
+      });
+    });
+
+    it('should arrive from server to client twice (multiple)', function (done) {
+      var engine = listen({
+          allowUpgrades: false
+          , conflater: function(x) {
+              var duped = [];
+              for (var i = 0; i < x.length; i++) {
+                duped.push(x[i]);
+                duped.push(x[i]);
+              }
+              return duped;
+          }
+      }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , expected = ['a', 'a', 'b', 'b']
+          , i = 0;
+        engine.on('connection', function (conn) {
+          conn.send('a');
+          conn.send('b');
+
+          conn.on('close', function () {
+            // since close fires right after the buffer is drained
+            setTimeout(function () {
+              expect(i).to.be(expected.length);
+              done();
+            }, 50);
+          });
+
+          conn.close();
+        });
+
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+              expect(msg).to.be(expected[i++]);
+          });
+        });
+      });
+    });
+  });
+
   describe('upgrade', function () {
     it('should upgrade', function (done) {
       var engine = listen(function (port) {
