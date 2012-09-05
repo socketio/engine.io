@@ -243,7 +243,40 @@ describe('engine', function () {
           server.close();
         });
       });
-    });    
+    });
+
+    it('should work with many instances', function (done) {
+      var server = http.createServer();
+      var tests = [];
+      function attach(i) {
+        var engine = eio.attach(server, {
+            path: "/custom-engine.io-path-" + i
+        });
+        tests.push(function(done) {
+          var uri = ('http://localhost:%d/custom-engine.io-path-' + i + '/default/').s(server.address().port);
+          request.get(uri, function (res) {
+            expect(res.status).to.be(500);
+            done();
+          });
+        });
+      }
+      for (var i=0; i<20; i++) {
+        attach(i);
+      }
+      server.listen(function () {
+        var counter = 0;
+        tests.forEach(function(test) {
+          counter += 1;
+          test(function() {
+            counter -= 1;
+            if (counter === 0) {
+              server.once('close', done);
+              server.close();
+            }
+          });
+        });
+      });
+    });
   });
 
 });
