@@ -193,15 +193,15 @@ describe('engine', function () {
     });
   });
 
-  describe('attach() at resource', function () {
-    it('should attach at string resource', function (done) {
+  describe('attach() at path', function () {
+    it('should attach at string path', function (done) {
       var server = http.createServer()
         , engine = eio.attach(server, {
-            resource: "/custom/path"
+            path: "/custom-engine.io-path"
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = 'http://localhost:%d/custom-engine.io-path/default/'.s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -210,14 +210,14 @@ describe('engine', function () {
       });
     });
 
-    it('should attach at regexp resource', function (done) {
+    it('should attach at regexp path', function (done) {
       var server = http.createServer()
         , engine = eio.attach(server, {
-            resource: /^\/custom\/[^\/]+/
+            path: /^\/custom-engine.io-[^\/]+/
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = 'http://localhost:%d/custom-engine.io-path/default/'.s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -226,17 +226,17 @@ describe('engine', function () {
       });
     });
 
-    it('should attach at check function resource', function (done) {
+    it('should attach at check function path', function (done) {
       var server = http.createServer()
         , engine = eio.attach(server, {
-            resource: function(req) {
-              var path = eio.URI_PREFIX + '/custom/path';
+            path: function(req) {
+              var path = "/custom-engine.io-path";
               return path == req.url.substr(0, path.length);
             }
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = 'http://localhost:%d/custom-engine.io-path/default/'.s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -251,17 +251,17 @@ describe('engine', function () {
       var tests = [];
       function attach(i) {
         var engine = eio.attach(server, {
-            resource: "/custom/path-" + i
+            path: "/custom-engine.io-path-" + i
         });
         tests.push(function(done) {
-          var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path-' + i + '/').s(server.address().port);
+          var uri = ('http://localhost:%d/custom-engine.io-path-' + i + '/default/').s(server.address().port);
           request.get(uri, function (res) {
             expect(res.status).to.be(500);
             done();
           });
         });
       }
-      for (var i=0; i<100; i++) {
+      for (var i=0; i<200; i++) {
         attach(i);
       }
       server.listen(function () {
