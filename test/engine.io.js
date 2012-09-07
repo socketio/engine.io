@@ -246,7 +246,6 @@ describe('engine', function () {
     });
 
     it('should work with many instances', function (done) {
-      // TODO: Capture `warning: possible EventEmitter memory leak detected. 11 listeners added.` and fail test.
       var server = http.createServer();
       var tests = [];
       function attach(i) {
@@ -261,7 +260,7 @@ describe('engine', function () {
           });
         });
       }
-      for (var i=0; i<200; i++) {
+      for (var i=0; i<20; i++) {
         attach(i);
       }
       server.listen(function () {
