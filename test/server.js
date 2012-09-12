@@ -515,6 +515,37 @@ describe('server', function () {
         });
       });
     });
+
+    it('should trigger with connection `ping timeout` after `pingInterval + pingTimeout`', function (done) {
+      var opts = { allowUpgrades: false, pingInterval: 30, pingTimeout: 10 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+
+        var clientCloseReason = null
+
+        socket.on('open', function () {
+          socket.on('close', function (reason) {
+            clientCloseReason = reason;
+          });
+        });
+
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            setTimeout(function() {
+              socket.onPacket = function(){};
+              expect(clientCloseReason).to.be(null);
+            }, 15);
+            setTimeout(function() {
+              expect(clientCloseReason).to.be(null);
+            }, 35);
+            setTimeout(function() {
+              expect(clientCloseReason).to.be("ping timeout");
+              done();
+            }, 50);
+          });
+        });
+      });
+    });    
   });
 
   describe('messages', function () {
