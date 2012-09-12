@@ -193,4 +193,91 @@ describe('engine', function () {
     });
   });
 
+  describe('attach() at resource', function () {
+    it('should attach at string resource', function (done) {
+      var server = http.createServer()
+        , engine = eio.attach(server, {
+            resource: "/custom/path"
+          });
+
+      server.listen(function () {
+        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        request.get(uri, function (res) {
+          expect(res.status).to.be(500);
+          server.once('close', done);
+          server.close();
+        });
+      });
+    });
+
+    it('should attach at regexp resource', function (done) {
+      var server = http.createServer()
+        , engine = eio.attach(server, {
+            resource: /^\/custom\/[^\/]+/
+          });
+
+      server.listen(function () {
+        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        request.get(uri, function (res) {
+          expect(res.status).to.be(500);
+          server.once('close', done);
+          server.close();
+        });
+      });
+    });
+
+    it('should attach at check function resource', function (done) {
+      var server = http.createServer()
+        , engine = eio.attach(server, {
+            resource: function(req) {
+              var path = eio.URI_PREFIX + '/custom/path';
+              return path == req.url.substr(0, path.length);
+            }
+          });
+
+      server.listen(function () {
+        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        request.get(uri, function (res) {
+          expect(res.status).to.be(500);
+          server.once('close', done);
+          server.close();
+        });
+      });
+    });
+
+    it('should work with many instances', function (done) {
+      // TODO: Capture `warning: possible EventEmitter memory leak detected. 11 listeners added.` and fail test.
+      var server = http.createServer();
+      var tests = [];
+      function attach(i) {
+        var engine = eio.attach(server, {
+            resource: "/custom/path-" + i
+        });
+        tests.push(function(done) {
+          var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path-' + i + '/').s(server.address().port);
+          request.get(uri, function (res) {
+            expect(res.status).to.be(500);
+            done();
+          });
+        });
+      }
+      for (var i=0; i<100; i++) {
+        attach(i);
+      }
+      server.listen(function () {
+        var counter = 0;
+        tests.forEach(function(test) {
+          counter += 1;
+          test(function() {
+            counter -= 1;
+            if (counter === 0) {
+              server.once('close', done);
+              server.close();
+            }
+          });
+        });
+      });
+    });
+  });
+
 });
