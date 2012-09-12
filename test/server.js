@@ -445,7 +445,7 @@ describe('server', function () {
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
 
-        var clientCloseReason = null;
+        var clientCloseReason = null
 
         socket.on('handshake', function() {
           socket.onPacket = function(){};
@@ -469,13 +469,13 @@ describe('server', function () {
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
 
-        engine.on('connection', function(socket){
-          socket.on('heartbeat', function() {
-            socket.onPacket = function(){};
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            conn.onPacket = function(){};
           });
         });
 
-        var clientCloseReason = null;
+        var clientCloseReason = null
 
         socket.on('open', function () {
           socket.on('close', function (reason) {
@@ -496,7 +496,7 @@ describe('server', function () {
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
 
-        var clientCloseReason = null;
+        var clientCloseReason = null
 
         socket.on('open', function () {
           socket.on('close', function (reason) {
@@ -504,9 +504,9 @@ describe('server', function () {
           });
         });
 
-        engine.on('connection', function(socket){
-          socket.on('heartbeat', function() {
-            socket.close();
+        engine.on('connection', function(conn){
+          conn.on('heartbeat', function() {
+            conn.close();
             setTimeout(function() {
               expect(clientCloseReason).to.be("transport close");
               done();
