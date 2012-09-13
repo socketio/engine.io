@@ -201,7 +201,7 @@ describe('engine', function () {
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = ('http://localhost:%d/engine.io/custom/path/').s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -217,7 +217,7 @@ describe('engine', function () {
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = ('http://localhost:%d/engine.io/custom/path/').s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -230,13 +230,13 @@ describe('engine', function () {
       var server = http.createServer()
         , engine = eio.attach(server, {
             resource: function(req) {
-              var path = eio.URI_PREFIX + '/custom/path';
+              var path = '/engine.io/custom/path';
               return path == req.url.substr(0, path.length);
             }
           });
 
       server.listen(function () {
-        var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path/').s(server.address().port);
+        var uri = ('http://localhost:%d/engine.io/custom/path/').s(server.address().port);
         request.get(uri, function (res) {
           expect(res.status).to.be(500);
           server.once('close', done);
@@ -254,7 +254,7 @@ describe('engine', function () {
             resource: "/custom/path-" + i
         });
         tests.push(function(done) {
-          var uri = ('http://localhost:%d' + eio.URI_PREFIX + '/custom/path-' + i + '/').s(server.address().port);
+          var uri = ('http://localhost:%d/engine.io/custom/path-' + i + '/').s(server.address().port);
           request.get(uri, function (res) {
             expect(res.status).to.be(500);
             done();
