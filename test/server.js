@@ -707,18 +707,46 @@ describe('server', function () {
           });
 
           engine.on('drain', function(sock){
-            expect(sock).to.be(socket);
-            expect(socket.writeBuffer.length).to.be(0);
-            --totalEvents || done();
+            //now the writeBuffer never clear entirely in every flush, so we should wait until client received all packets
+            setTimeout(function() {
+              expect(sock).to.be(socket);
+              expect(socket.writeBuffer.length).to.be(0);
+              --totalEvents || done();
+            }, 200);
           });
           socket.on('drain', function(){
-            expect(socket.writeBuffer.length).to.be(0);
-            --totalEvents || done();
+            //now the writeBuffer never clear entirely in every flush, so we should wait until client received all packets
+            setTimeout(function() {
+              expect(socket.writeBuffer.length).to.be(0);
+              --totalEvents || done();
+            }, 200);
           });
 
           socket.send('aaaa');
         });
 
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
+
+    it('should not clear writeBuffer in every flush', function(done) {
+      var engine = listen({ allowUpgrades: false }, function(port) {
+        engine.on('connection', function(socket) {
+          var msg = "boo";
+
+          socket.on('drain', function() {
+              expect(socket.writeBuffer.length).not.to.be(0);
+              expect(socket.writeBuffer[0].data).to.be(msg);
+
+              //waiting for client to receive message
+              setTimeout(function() {
+                expect(socket.writeBuffer.length).to.be(0);
+                done();
+              }, 100);
+          });
+
+          socket.send(msg);
+        });
         new eioc.Socket('ws://localhost:%d'.s(port));
       });
     });
