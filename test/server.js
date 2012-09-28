@@ -17,7 +17,7 @@ describe('server', function () {
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'tobi' }) // no tobi transport - outrageous
+          .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -29,7 +29,7 @@ describe('server', function () {
       // make sure we check for actual properties - not those present on every {}
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'constructor' })
+          .query({ transport: 'constructor' })
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -40,7 +40,7 @@ describe('server', function () {
     it('should disallow non-existent sids', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling', sid: 'test' })
+          .query({ transport: 'polling', sid: 'test' })
           .end(function (res) {
             expect(res.status).to.be(500);
             done();
@@ -53,7 +53,7 @@ describe('server', function () {
     it('should send the io cookie', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
@@ -66,7 +66,7 @@ describe('server', function () {
     it('should send the io cookie custom name', function (done) {
       var engine = listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
             expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
@@ -78,7 +78,7 @@ describe('server', function () {
     it('should not send the io cookie', function (done) {
       var engine = listen({ cookie: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
-          .send({ transport: 'polling' })
+          .query({ transport: 'polling' })
           .end(function (res) {
             expect(res.headers['set-cookie']).to.be(undefined);
             done();
@@ -575,18 +575,46 @@ describe('server', function () {
           });
 
           engine.on('drain', function(sock){
-            expect(sock).to.be(socket);
-            expect(socket.writeBuffer.length).to.be(0);
-            --totalEvents || done();
+            //now the writeBuffer never clear entirely in every flush, so we should wait until client received all packets
+            setTimeout(function() {
+              expect(sock).to.be(socket);
+              expect(socket.writeBuffer.length).to.be(0);
+              --totalEvents || done();
+            }, 200);
           });
           socket.on('drain', function(){
-            expect(socket.writeBuffer.length).to.be(0);
-            --totalEvents || done();
+            //now the writeBuffer never clear entirely in every flush, so we should wait until client received all packets
+            setTimeout(function() {
+              expect(socket.writeBuffer.length).to.be(0);
+              --totalEvents || done();
+            }, 200);
           });
 
           socket.send('aaaa');
         });
 
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
+
+    it('should not clear writeBuffer in every flush', function(done) {
+      var engine = listen({ allowUpgrades: false }, function(port) {
+        engine.on('connection', function(socket) {
+          var msg = "boo";
+
+          socket.on('drain', function() {
+              expect(socket.writeBuffer.length).not.to.be(0);
+              expect(socket.writeBuffer[0].data).to.be(msg);
+
+              //waiting for client to receive message
+              setTimeout(function() {
+                expect(socket.writeBuffer.length).to.be(0);
+                done();
+              }, 100);
+          });
+
+          socket.send(msg);
+        });
         new eioc.Socket('ws://localhost:%d'.s(port));
       });
     });
