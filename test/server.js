@@ -735,14 +735,14 @@ describe('server', function () {
           var msg = "boo";
 
           socket.on('drain', function() {
-              expect(socket.writeBuffer.length).not.to.be(0);
-              expect(socket.writeBuffer[0].data).to.be(msg);
+            expect(socket.writeBuffer.length).not.to.be(0);
+            expect(socket.writeBuffer[0].data).to.be(msg);
 
-              //waiting for client to receive message
-              setTimeout(function() {
-                expect(socket.writeBuffer.length).to.be(0);
-                done();
-              }, 100);
+            //waiting for client to receive message
+            setTimeout(function() {
+              expect(socket.writeBuffer.length).to.be(0);
+              done();
+            }, 100);
           });
 
           socket.send(msg);
