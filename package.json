@@ -11,7 +11,7 @@
     ]
   , "dependencies": {
         "debug": "0.6.0"
-      , "engine.io-client": "https://github.com/c9/engine.io-client/tarball/c9b70f2d5312522c868c1e739103ffa07dd82052"
+      , "engine.io-client": "https://github.com/c9/engine.io-client/tarball/5b32e84b823c76c3eb017d84e26e04dbbad6cc3d"
       , "ws": "~0.4.21"
     }
   , "devDependencies": {
