@@ -1,10 +1,11 @@
+/*global eio,listen,request,expect*/
 
 /**
  * Test dependencies.
  */
 
 var net = require('net')
-  , http = require('http')
+  , http = require('http');
 
 /**
  * Tests.
@@ -125,7 +126,7 @@ describe('engine', function () {
 
         var check = setTimeout(function () {
           done(new Error('Client should have ended'));
-        }, 500);
+        }, 20);
 
         client.on('end', function () {
           clearTimeout(check);
@@ -151,7 +152,7 @@ describe('engine', function () {
           var check = setTimeout(function () {
             client.removeListener('end', onEnd);
             done();
-          }, 200);
+          }, 20);
 
           function onEnd () {
             done(new Error('Client should not end'));

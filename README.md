@@ -133,11 +133,9 @@ These are exposed by `require('engine.io')`:
       - `http.Server`: server to attach to.
       - `Object`: optional, options object
     - **Options**
-      - `path` (`String`) default prefix path (`/engine.io`)
       - `resource` (`String`): name of resource for this server (`default`).
         Setting a resource allows you to initialize multiple engine.io
-        endpoints on the same host without them interfering, and without
-        changing the `path` directly.
+        endpoints on the same host without them interfering.
       - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - **See Server options below for additional options you can pass**
@@ -263,6 +261,18 @@ Exposed in the `eio` global namespace (in the browser), or by
 
 For the client API refer to the 
 [engine-client](http://github.com/learnboost/engine-client) repository.
+
+## Debug / logging
+
+Engine.IO is powered by [debug](http://github.com/visionmedia/debug).
+In order to see all the debug output, run your app with the env variable
+`DEBUG` including the desired scope.
+
+To see the output from all of Engine.IO's debugging scopes you can use:
+
+```
+DEBUG=engine* node myapp
+```
 
 ## Transports
 
