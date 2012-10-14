@@ -722,6 +722,50 @@ describe('server', function () {
         new eioc.Socket('ws://localhost:%d'.s(port));
       });
     });
+
+    it('should not clear writeBuffer in every flush', function(done) {
+      var engine = listen({ allowUpgrades: false }, function(port) {
+        engine.on('connection', function(socket) {
+          var msg = "boo";
+
+          socket.on('drain', function() {
+            expect(socket.writeBuffer.length).not.to.be(0);
+            expect(socket.writeBuffer[0].data).to.be(msg);
+
+            //waiting for client to receive message
+            setTimeout(function() {
+              expect(socket.writeBuffer.length).to.be(0);
+              done();
+            }, 100);
+          });
+
+          socket.send(msg);
+        });
+        new eioc.Socket('ws://localhost:%d'.s(port));
+      });
+    });
+
+    it('should still available when connection closed', function (done) {
+      var opts = { allowUpgrades: false, transports: ['websocket'] };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        var msg = "boo";
+
+        engine.on('connection', function (conn) {
+          socket.on('open', function () {
+            //send message
+            conn.send(msg);
+            //force close
+            conn.close();
+          });
+          conn.on('close', function () {
+            expect(conn.writeBuffer.length).to.be(1);
+            expect(conn.writeBuffer[0].data).to.be(msg);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('send', function() {
