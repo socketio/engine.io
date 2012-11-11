@@ -17,6 +17,12 @@ describe('engine', function () {
     expect(eio.protocol).to.be.a('number');
   });
 
+  it('should be the same version as client', function(){
+    expect(eio.protocol).to.be.a('number');
+    var version = require('../package').version;
+    expect(version).to.be(require('engine.io-client').version);
+  });
+
   describe('listen', function () {
     it('should open a http server that returns 501', function (done) {
       var server = listen(function (port) {
@@ -43,7 +49,9 @@ describe('engine', function () {
       server.listen(function () {
         var uri = 'http://localhost:%d/engine.io/default/'.s(server.address().port);
         request.get(uri, function (res) {
-          expect(res.status).to.be(500);
+          expect(res.status).to.be(400);
+          expect(res.body.code).to.be(0);
+          expect(res.body.message).to.be('Transport unknown');
           server.once('close', done);
           server.close();
         });
@@ -182,7 +190,9 @@ describe('engine', function () {
       server.listen(function () {
         var port = server.address().port;
         request.get('http://localhost:%d/engine.io/default/'.s(port), function (res) {
-          expect(res.status).to.be(500);
+          expect(res.status).to.be(400);
+          expect(res.body.code).to.be(0);
+          expect(res.body.message).to.be('Transport unknown');
           request.get('http://localhost:%d/test'.s(port), function (res) {
             expect(res.status).to.be(200);
             expect(listeners).to.eql(2);

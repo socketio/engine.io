@@ -231,6 +231,16 @@ A representation of a client. _Inherits from EventEmitter_.
       - `Array`: write buffer
 - `drain`
     - Called when the write buffer is drained
+- `packet`
+    - Called when a socket reseived a packet (`message`, `ping`)
+    - **Arguments**
+      - `type`: packet type
+      - `data`: packet data (if type is message)
+- `packetCreate`
+    - Called before a socket sends a packet (`message`, `pong`)
+    - **Arguments**
+      - `type`: packet type
+      - `data`: packet data (if type is message)
 
 ##### Properties
 
@@ -260,7 +270,7 @@ Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
 For the client API refer to the 
-[engine-client](http://github.com/learnboost/engine-client) repository.
+[engine-client](http://github.com/learnboost/engine.io-client) repository.
 
 ## Debug / logging
 

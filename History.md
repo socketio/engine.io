@@ -1,4 +1,25 @@
 
+0.3.9 / 2012-10-23
+==================
+
+  * package: bumped `engine.io-client`
+
+0.3.8 / 2012-10-23
+==================
+
+  * package: bumped engine.io-client
+  * examples: added first example
+
+0.3.7 / 2012-10-21
+==================
+
+  * package: bumped `engine.io-client`
+
+0.3.6 / 2012-10-21
+==================
+
+  [skipped]
+
 0.3.5 / 2012-10-14
 ==================
 
