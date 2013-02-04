@@ -19,13 +19,20 @@
       , "ws": "0.4.25"
       , "engine.io-parser": "0.3.0"
       , "base64id": "0.1.0"
+      , "s": "*"
     }
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
       , "engine.io-client": "git://github.com/LearnBoost/engine.io-client#68780141ef"
-      , "s": "*"
+      , "localtunnel": "0.0.4"
+      , "express": "3.1.0"
+      , "useragent": "2.0.3"
+      , "term-canvas": "0.0.5"
+      , "mocha-cloud-grid-view": "git://github.com/sweetieSong/mocha-cloud-grid-view#a6ed3031f1"
+      , "mocha-cloud": "git://github.com/sweetieSong/mocha-cloud#8986a878c3"
+      , "replace": "0.2.4"
     }
   , "scripts" : { "test" : "make test" }
   , "repository": {

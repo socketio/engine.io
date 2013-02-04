@@ -1,0 +1,8 @@
+{
+  "name": "eio-test",
+  "dependencies": {
+    "visionmedia/mocha": "*"
+  },
+  "paths": ["../node_modules"],
+  "local": ["engine.io-client"]
+}
