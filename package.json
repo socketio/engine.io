@@ -26,6 +26,7 @@
       , "superagent": "*"
       , "engine.io-client": "0.4.3"
       , "s": "*"
+      , "morestreams": "*"
     }
   , "scripts" : { "test" : "make test" }
   , "repository": {

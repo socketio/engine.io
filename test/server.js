@@ -5,7 +5,9 @@
  */
 
 var http = require('http')
-  WebSocket = require('ws');
+  WebSocket = require('ws')
+  fs = require('fs')
+  streams = require('morestreams');
 
 /**
  * Tests.
@@ -1118,6 +1120,61 @@ describe('server', function () {
 
       // attach another engine to make sure it doesn't break upgrades
       var e2 = eio.attach(engine.httpServer, { path: '/foo' });
+    });
+  });
+
+  describe('stream', function () {
+    it('is pipable into', function (done) {
+      var engine = listen({}, function (port) {
+        var fileSizeOnServer;
+        engine.on('connection', function (conn) {
+          // send this test file and compare the received size
+          fs.createReadStream(__filename).pipe(conn);
+          fs.stat(__filename, function (err, stats) {
+            fileSizeOnServer = stats.size;
+          });
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          var dataLength = 0;
+          socket.on('data', function (data) {
+            dataLength += data.length;
+          });
+          socket.on('close', function () {
+            expect(dataLength).to.be(fileSizeOnServer);
+            done();
+          });
+        });
+      });
+    });
+
+    it('is pipable from', function (done) {
+      var buffered = new streams.BufferedStream();
+      // create simple non-buffered stream, bufferring requires outgoing pipe
+      delete buffered.chunks;
+
+      var engine = listen({}, function (port) {
+        engine.on('connection', function (conn) {
+          conn.pipe(buffered);
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          for(var i = 0; i < 10; i++) {
+            socket.send(i);
+          }
+        });
+        setTimeout(function () {
+          socket.close();
+        }, 1000);
+        var received = "";
+        buffered.on('data', function (data) {
+          received += data;
+        });
+        buffered.on('end', function() {
+          expect(received).to.eql("0123456789");
+          done();
+        });
+      });
     });
   });
 
