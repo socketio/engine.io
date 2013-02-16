@@ -207,7 +207,7 @@ to a single process.
 
 #### Socket
 
-A representation of a client. _Inherits from EventEmitter_.
+A representation of a client. _Inherits from EventEmitter_. _Implements Stream_.
 
 ##### Events
 
@@ -261,6 +261,29 @@ A representation of a client. _Inherits from EventEmitter_.
 - `close`
     - Disconnects the client
     - **Returns** `Socket` for chaining
+- `pipe`
+    - Pipes incoming data to a Writable Stream.
+    - **Parameters**
+      - `WritableStream`: destination
+      - `Object`: optional, does not close destination if options.end is false
+    - **Returns** `Socket` for chaining
+
+##### Stream interface - see [Node.js docs](http://nodejs.org/api/stream.html#stream_event_drain)
+
+- Readable Stream
+    - supported:
+      - events: `data`, `end`, `error`, `close`
+      - properties: `readable`
+      - methods: `destroy`
+    - not supported:
+      - methods: `setEncoding`, `pause`, `resume`
+- Writable Stream
+    - supported:
+      - events: `error`, `close`
+      - properties: `writable`
+      - methods: `write`, `end`, `destroy`, `destroySoon`
+    - not supported:
+      - events: `drain`, `pipe`
 
 ### Client
 
