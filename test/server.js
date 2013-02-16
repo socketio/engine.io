@@ -1176,6 +1176,73 @@ describe('server', function () {
         });
       });
     });
-  });
 
+    it('should trigger error on `ping timeout`', function (done) {
+      var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
+      var engine = listen(opts, function (port) {
+        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        socket.sendPacket = function (){};
+        engine.on('connection', function (conn) {
+          conn.on('error', function (err) {
+            done();
+          })
+        });
+      });
+    });
+
+    it('should trigger error on `transport error`', function ($done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        // hack to access the sockets created by node-xmlhttprequest
+        // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
+        var request = require('http').request;
+        var sockets = [];
+        http.request = function(opts){
+          var req = request.apply(null, arguments);
+          req.on('socket', function(socket){
+            sockets.push(socket);
+          });
+          return req;
+        };
+
+        function done(){
+          http.request = request;
+          $done();
+        }
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
+          , serverSocket;
+
+        engine.on('connection', function(s){
+          serverSocket = s;
+        });
+
+        socket.transport.on('poll', function(){
+          // we set a timer to wait for the request to actually reach
+          setTimeout(function(){
+            // kill the underlying connection
+            sockets[1].end();
+            serverSocket.on('error', function(err){
+              expect(err.message).to.be('poll connection closed prematurely');
+              done();
+            });
+          }, 50);
+        });
+      });
+    });
+
+    it('should trigger error on `parse error`', function (done) {
+      var engine = listen({}, function (port) {
+        engine.on('connection', function (conn) {
+          conn.on('error', function (err) {
+            done();
+          });
+        });
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', function () {
+          // send bad badly parsed packet
+          socket.sendPacket('error', 'ignored');
+        });
+      });
+    });
+  });
 });
