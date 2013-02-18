@@ -580,6 +580,211 @@ describe('server', function () {
         });
       });
     });
+
+    it('should leave transport in a consistent state after ' +
+       '`forced close` (polling)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              expect(conn.request).to.be(null);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+          setTimeout(function () {
+            conn.close();
+          }, 10);
+        });
+      });
+    });
+
+    it('should leave transport in a consistent state after ' +
+       'forced close` (websocket)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+          setTimeout(function () {
+            conn.close();
+          }, 10);
+        });
+      });
+    });
+
+    it('should leave transport in a consistent state after ' +
+       '`transport close` (polling)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              expect(conn.request).to.be(null);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+
+          socket.transport.on('pollComplete', function() {
+            socket.close();
+          });
+        });
+      });
+    });
+
+    it('should leave transport in a consistent state after ' +
+       '`transport close` (websocket)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+
+        engine.on('connection', function (conn) {
+          conn.on('close', function () {
+            setTimeout(function () {
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+        });
+
+        socket.on('open', function () {
+          setTimeout(function () {
+            socket.close();
+          }, 10);
+        });
+      });
+    });
+
+    it('should leave transport in a consistent state after ' +
+       '`transport error` (polling)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        // hack to access the sockets created by node-xmlhttprequest
+        // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
+        var request = require('http').request;
+        var sockets = [];
+        http.request = function(opts) {
+          var req = request.apply(null, arguments);
+          req.on('socket', function(socket) {
+            sockets.push(socket);
+          });
+          return req;
+        };
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+        engine.on('connection', function(conn){
+          conn.on('close', function () {
+            setTimeout(function () {
+              http.request = request;
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              expect(conn.request).to.be(null);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+        });
+
+        socket.transport.on('poll', function() {
+          // we set a timer to wait for the request to actually reach
+          setTimeout(function(){
+            // kill the underlying connection
+            sockets[1].end();
+          }, 50);
+        });
+      });
+    });
+
+    it('should leave transport in a consistent state after ' +
+       '`transport error` (websocket)', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        // hack to access the sockets created by node-xmlhttprequest
+        // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
+        var request = require('http').request;
+        var sockets = [];
+        http.request = function(opts) {
+          var req = request.apply(null, arguments);
+          req.on('socket', function(socket) {
+            sockets.push(socket);
+          });
+          return req;
+        };
+
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+
+        engine.on('connection', function(conn){
+          conn.on('close', function () {
+            setTimeout(function () {
+              http.request = request;
+              expect(conn.transport.readyState).to.be('closed');
+              expect(conn.transport.writable).to.be(false);
+              conn.transport.close(function () {
+                expect(conn.transport.readyState).to.be('closed');
+                expect(conn.transport.writable).to.be(false);
+                done();
+              });
+            }, 10);
+          });
+        });
+
+        socket.on('open', function () {
+          setTimeout(function () {
+            // kill the underlying connection
+            sockets[0].end();
+          }, 50);
+        });
+      });
+    });
+
+    it('should trigger transport close callback for `forced close`, ' +
+      'even between polling cycle', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
+
+        engine.on('connection', function (conn) {
+          socket.transport.on('pollComplete', function() {
+            conn.close();
+          });
+          conn.on('close', function (reason) {
+            expect(reason).to.be('forced close');
+            conn.transport.close(function() {
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('messages', function () {
