@@ -19,12 +19,12 @@
       , "ws": "0.4.25"
       , "engine.io-parser": "0.3.0"
       , "base64id": "0.1.0"
-      , "s": "*"
     }
   , "devDependencies": {
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
+      , "s": "*"
       , "engine.io-client": "git://github.com/LearnBoost/engine.io-client#68780141ef"
       , "localtunnel": "0.0.4"
       , "express": "3.1.0"
