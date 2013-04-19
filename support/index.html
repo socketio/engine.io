@@ -1,0 +1,101 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="mocha.css" />
+    <script type="text/javascript" src="http://sweet-mocha-cloud.s3.amazonaws.com/expect.js"></script>
+    <script type="text/javascript" src="http://sweet-mocha-cloud.s3.amazonaws.com/eio-test.js"></script>
+    
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript">
+      var eoic, expect, Mocha, mocha;
+      var url = "";
+
+      // expect.js does not have a component. try/catch here to fix for browser test
+      try {
+        expect = require("expect.js");
+      } catch (err) {
+      
+      }
+
+      // include engine.io-client (because component packages it differently, need try/catch)
+      try {
+        eioc = require('engine.io-client');
+      } catch (err){
+        eioc = require('LearnBoost-engine.io-client');
+      }
+    
+      try {
+        Mocha = require('mocha');
+      } catch (err){
+        Mocha = require('visionmedia-mocha');
+      }
+      
+      // when we run in browser, module is 'undefined'
+      if ('undefined' == typeof module) {
+        var module = { exports: {} }
+          , exports = module.exports;
+      }
+  
+      /**
+      // write to mochaResults when test is over
+      process.stdout.write = function(content){
+        window.mochaResults = JSON.parse(content);
+        failures = window.mochaResults.failures;
+
+        window.mochaResults.failures = failures.length==0?undefined:failures;
+        window.mochaResults.failed = window.mochaResults.failures;
+      }
+      */
+
+    </script>
+
+    <script type="text/javascript">
+      mocha.setup('bdd');
+      mocha.setup({ignoreLeaks: true});
+    </script>
+    SCRIPTS_HERE
+    <script>
+
+    onload = function(){
+
+      console.log("logger up");
+      var runner = mocha.run();
+       
+      // Mocha-cloud runner
+      var failed = [];
+      runner.on('fail', function(test, err){
+
+        console.log("failed");
+
+        var fail = {
+          title: test.title,
+          fullTitle: test.fullTitle(),
+          error: {
+            message: err.message,
+            stack: err.stack
+          }
+        };
+
+        // on fail, push to server 
+        var url = "fullTitle=" + encodeURIComponent(fail.fullTitle) + 
+                  "&stack=" + encodeURIComponent(fail.error.stack);
+        failed.push(fail);
+        
+        $("body").append("<img src=\"" + url + "\" alt=\"failed\" />");
+      });
+
+      // when test ends, set global mochaResults
+      runner.on('end', function(){
+        runner.stats.failed = failed;
+        window.mochaResults = runner.stats;
+      });
+      
+    };
+    </script>
+
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+  </body>
+</html>

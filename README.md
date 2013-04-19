@@ -333,6 +333,29 @@ $ make test
 
 And point browser/s to `http://localhost:3000`.
 
+
+### Cloud and local tests
+
+```
+$ make test-local
+```
+
+or
+
+```
+$ make test-cloud
+```
+
+To add files to test, add them into the cloud directory in test. Follow the examples. For servers to run, add them to the servers.js file in test.
+
+You must create your own saucelabs credentials and add them to the support directory in a file named cloud_authentication.json of the form
+{
+  "username": ?,
+  "userkey": ?
+} As well, the name for the session and the browsers chosen can be changed in runCloud.js
+
+To use component, list your dependencies in the component.json file and run make build in the test directory. Localtunnel does not server large files, hence you will need to host your component files elsewhere. We have show them in the top of the index.html file, but those are for our component.json file only. 
+
 ### Server
 
 ## Benchmarks
