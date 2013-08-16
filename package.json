@@ -16,7 +16,7 @@
     ]
   , "dependencies": {
         "debug": "0.6.0"
-      , "ws": "0.4.27"
+      , "ws": "0.4.28"
       , "engine.io-parser": "0.3.0"
       , "base64id": "0.1.0"
     }
@@ -24,7 +24,7 @@
         "mocha": "*"
       , "expect.js": "*"
       , "superagent": "*"
-      , "engine.io-client": "0.6.3"
+      , "engine.io-client": "0.6.4"
       , "s": "*"
     }
   , "scripts" : { "test" : "make test" }
