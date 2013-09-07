@@ -52,6 +52,9 @@ httpServer.on('upgrade', function (req, socket, head) {
 httpServer.on('request', function (req, res) {
   server.handleRequest(req, res);
 });
+httpServer.once('close', function () {
+  server.close();
+});
 ```
 
 ### Client
