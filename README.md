@@ -181,6 +181,8 @@ to a single process.
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
         contains the client sid to send as part of handshake response
         headers. Set to `false` to not send one. (`io`)
+      - `enableCorsCustomHeaders` (`Boolean`): should the server honor
+        custom headers in a cross domain scenario (`false`)
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
