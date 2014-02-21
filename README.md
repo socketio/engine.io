@@ -154,7 +154,6 @@ These are exposed by `require('engine.io')`:
       - `Object`: optional, options object
     - **Options**
       - `path` (`String`): name of the path to capture (`/engine.io`).
-      - `policyFile` (`Boolean`): whether to handle policy file requests (`true`)
       - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
       - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
       - **See Server options below for additional options you can pass**
@@ -215,12 +214,6 @@ to a single process.
       - `http.ServerRequest`: a node request object
       - `net.Stream`: TCP socket for the request
       - `Buffer`: legacy tail bytes
-    - **Returns** `Server` for chaining
-- `handleSocket`
-    - Called with raw TCP sockets from http requests to intercept flash policy
-      file requests
-    - **Parameters**
-      - `net.Stream`: TCP socket on which requests are listened
     - **Returns** `Server` for chaining
 
 <hr><br>
@@ -290,7 +283,7 @@ A representation of a client. _Inherits from EventEmitter_.
 Exposed in the `eio` global namespace (in the browser), or by
 `require('engine.io-client')` (in Node.JS).
 
-For the client API refer to the 
+For the client API refer to the
 [engine-client](http://github.com/learnboost/engine.io-client) repository.
 
 ## Debug / logging
@@ -371,7 +364,7 @@ WebSocket/FlashSocket based connections have two fundamental benefits:
       they all need to be routed to the process and computer that owns the `Engine`
       connection. This negatively impacts RAM and CPU usage.
   - _B: Network traffic_<br>
-      WebSocket is designed around the premise that each message frame has to be 
+      WebSocket is designed around the premise that each message frame has to be
       surrounded by the least amount of data. In HTTP 1.1 transports, each message
       frame is surrounded by HTTP headers and chunked encoding frames. If you try to
       send the message _"Hello world"_ with xhr-polling, the message ultimately
@@ -405,7 +398,7 @@ proven problematic:
 3. **Cloud application platforms**<br>
     Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
     nature of the evolution of the WebSocket protocol. Applications therefore end up
-    inevitably using long polling, but the seamless installation experience of 
+    inevitably using long polling, but the seamless installation experience of
     Socket.IO we strive for (_"require() it and it just works"_) disappears.
 
 Some of these problems have solutions. In the case of proxies and personal programs,
@@ -447,7 +440,7 @@ safely lazy load it without hurting user experience), etc.
 ### Can I use engine without Socket.IO ?
 
 Absolutely. Although the recommended framework for building realtime applications
-is Socket.IO, since it provides fundamental features for real-world applications 
+is Socket.IO, since it provides fundamental features for real-world applications
 such as multiplexing, reconnection support, etc.
 
 `Engine` is to Socket.IO what Connect is to Express. An essential piece for building
@@ -472,7 +465,7 @@ Absolutely. The [engine.io-protocol](https://github.com/LearnBoost/engine.io-pro
 repository contains the most up to date description of the specification
 at all times, and the parser implementation in JavaScript.
 
-## License 
+## License
 
 (The MIT License)
 
