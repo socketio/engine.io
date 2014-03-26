@@ -18,6 +18,41 @@ var WebSocket = require('ws');
 describe('server', function () {
 
   describe('verification', function () {
+    it('should disallow request when origin defined and none specified', function(done) {
+      var engine = listen({ origins: 'http://foo.example:*' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+         .query({ transport: 'polling' })
+         .end(function (res) {
+            expect(res.status).to.be(400);
+            done();
+          });
+      });
+    });
+
+    it('should disallow request when origin defined and a different one specified', function(done) {
+      var engine = listen({ origins: 'http://foo.example:*' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+         .query({ transport: 'polling' })
+         .set('origin', 'http://herp.derp')
+         .end(function (res) {
+            expect(res.status).to.be(400);
+            done();
+          });
+      });
+    });
+
+    it('should allow request when origin defined an the same is specified', function(done) {
+      var engine = listen({ origins: 'http://foo.example:*' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+         .set('origin', 'http://foo.example')
+         .query({ transport: 'polling' })
+         .end(function (res) {
+            expect(res.status).to.be(200);
+            done();
+          });
+      });
+    });
+
     it('should disallow non-existent transports', function (done) {
       var engine = listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))

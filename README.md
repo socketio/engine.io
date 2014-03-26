@@ -196,6 +196,8 @@ to a single process.
       - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
         can be when polling, before closing the session (to avoid DoS). Default
         value is `10E7`.
+      - `origins` (`String`): origins that are allowed to connect to the
+        Engine.IO server. Defeaults to `*:*`.
       - `transports` (`<Array> String`): transports to allow connections
         to (`['polling', 'websocket', 'flashsocket']`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
