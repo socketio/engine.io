@@ -28,9 +28,5 @@
     "engine.io-client": "1.0.5",
     "s": "0.1.1"
   },
-  "scripts": { "test" : "make test" },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:LearnBoost/engine.io.git"
-  }
+  "scripts": { "test" : "make test" }
 }
