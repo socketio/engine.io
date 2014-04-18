@@ -44,6 +44,14 @@ describe('engine', function () {
 
       expect(engine).to.be.an(eio.Server);
     });
+    
+    it('should return an engine.Server when passed as parameter', function () {
+      var server = http.createServer()
+        , eioServer = new eio.Server()
+        , engine = eio.attach(eioServer, server);
+
+      expect(engine).to.be.an(eio.Server).and.equal(eioServer);
+    });
 
     it('should attach engine to an http server', function (done) {
       var server = http.createServer()
