@@ -383,7 +383,6 @@ the same solution.
 WebSocket based connections have two fundamental benefits:
 
 1. **Better server performance**
-
   - _A: Load balancers_<br>
       Load balancing a long polling connection poses a serious architectural nightmare
       since requests can come from any number of open sockets by the user agent, but
@@ -402,7 +401,6 @@ WebSocket based connections have two fundamental benefits:
       less server CPU usage.
 
 2. **Better user experience**
-
     Due to the reasons stated in point **1**, the most important effect of being able
     to establish a WebSocket connection is raw data transfer speed, which translates
     in _some_ cases in better user experience.
