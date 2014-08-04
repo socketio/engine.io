@@ -401,6 +401,7 @@ WebSocket based connections have two fundamental benefits:
       less server CPU usage.
 
 2. **Better user experience**
+
     Due to the reasons stated in point **1**, the most important effect of being able
     to establish a WebSocket connection is raw data transfer speed, which translates
     in _some_ cases in better user experience.
