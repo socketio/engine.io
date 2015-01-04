@@ -210,6 +210,8 @@ to a single process.
         rejected, and err is an error code.
       - `transports` (`<Array> String`): transports to allow connections
         to (`['polling', 'websocket']`)
+      - `perMessageDeflate` (`Boolean`) whether to allow the WebSocket
+        permessage-deflate extension (`true`)
       - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
         (`true`)
       - `cookie` (`String|Boolean`): name of the HTTP cookie that
