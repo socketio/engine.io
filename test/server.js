@@ -83,6 +83,19 @@ describe('server', function () {
       });
     });
 
+    it('should send the io cookie with custom cookie path', function (done) {
+      var engine = listen({ cookiePath: '/' }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (res) {
+            // hack-obtain sid
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
+            done();
+          });
+      });
+    });
+
     it('should send the io cookie custom name', function (done) {
       var engine = listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
