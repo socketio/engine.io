@@ -15,15 +15,15 @@ describe('JSONP', function () {
     // we have to override the browser's functionality for JSONP
     document = {
       body: {
-        appendChild: function(){},
-        removeChild: function(){}
+        appendChild: function () {},
+        removeChild: function () {}
       }
     };
 
     document.createElement = function (name) {
       var self = this;
 
-      if('script' == name) {
+      if ('script' === name) {
         var script = {};
 
         script.__defineGetter__('parentNode', function () {
@@ -31,29 +31,29 @@ describe('JSONP', function () {
         });
 
         script.__defineSetter__('src', function (uri) {
-          request.get(uri).end(function(res) {
+          request.get(uri).end(function (res) {
             eval(res.text);
           });
         });
         return script;
-      } else if ('form' == name) {
+      } else if ('form' === name) {
         var form = {
           style: {},
           action: '',
-          parentNode: { removeChild: function(){} },
-          removeChild: function(){},
-          setAttribute: function(){},
-          appendChild: function(){},
-          submit: function(){
+          parentNode: { removeChild: function () {} },
+          removeChild: function () {},
+          setAttribute: function () {},
+          appendChild: function () {},
+          submit: function () {
             request
             .post(this.action)
             .type('form')
             .send({ d: self.areaValue })
-            .end(function(){});
+            .end(function () {});
           }
         };
         return form;
-      } else if ('textarea' == name) {
+      } else if ('textarea' === name) {
         var textarea = {};
 
         //a hack to be able to access the area data when form is sent
@@ -63,7 +63,7 @@ describe('JSONP', function () {
         return textarea;
       } else if (~name.indexOf('iframe')) {
         var iframe = {};
-        setTimeout(function() {
+        setTimeout(function () {
           if (iframe.onload) iframe.onload();
         }, 0);
 
@@ -71,15 +71,15 @@ describe('JSONP', function () {
       } else {
         return {};
       }
-    }
+    };
 
     document.getElementsByTagName = function (name) {
       return [{
         parentNode: {
           insertBefore: function () {}
         }
-      }]
-    }
+      }];
+    };
   });
 
   after(function () {
@@ -105,7 +105,7 @@ describe('JSONP', function () {
   describe('messages', function () {
     var engine, port, socket;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (p) {
         port = p;
 
@@ -134,8 +134,8 @@ describe('JSONP', function () {
     });
 
     it('should not fail JSON.parse for stringified messages', function (done) {
-      engine.on('connection', function(conn) {
-        conn.on('message', function(message) {
+      engine.on('connection', function (conn) {
+        conn.on('message', function (message) {
           expect(JSON.parse(message)).to.be.eql({test : 'a\r\nb\n\n\n\nc'});
           done();
         });
@@ -146,8 +146,8 @@ describe('JSONP', function () {
     });
 
     it('should parse newlines in message correctly', function (done) {
-      engine.on('connection', function(conn) {
-        conn.on('message', function(message) {
+      engine.on('connection', function (conn) {
+        conn.on('message', function (message) {
           expect(message).to.be.equal('a\r\nb\n\n\n\nc');
           done();
         });
@@ -157,7 +157,7 @@ describe('JSONP', function () {
       });
     });
 
-    it('should arrive from server to client and back with binary data (pollingJSONP)', function(done) {
+    it('should arrive from server to client and back with binary data (pollingJSONP)', function (done) {
       var binaryData = new Buffer(5);
       for (var i = 0; i < 5; i++) binaryData[i] = i;
       engine.on('connection', function (conn) {
@@ -166,7 +166,7 @@ describe('JSONP', function () {
         });
       });
 
-      socket.on('open', function() {
+      socket.on('open', function () {
         socket.send(binaryData);
         socket.on('message', function (msg) {
           for (var i = 0; i < msg.length; i++) expect(msg[i]).to.be(i);
@@ -179,7 +179,7 @@ describe('JSONP', function () {
   describe('close', function () {
     it('should trigger when server closes a client', function (done) {
       var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-          var socket = new eioc.Socket('ws://localhost:' + port
+        var socket = new eioc.Socket('ws://localhost:' + port
             , { transports: ['polling'], forceJSONP: true, upgrade: false })
             , total = 2;
 

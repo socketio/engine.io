@@ -20,7 +20,7 @@ describe('engine', function () {
     expect(eio.protocol).to.be.a('number');
   });
 
-  it('should be the same version as client', function(){
+  it('should be the same version as client', function () {
     expect(eio.protocol).to.be.a('number');
     var version = require('../package').version;
     expect(version).to.be(require('engine.io-client/package').version);
@@ -83,7 +83,7 @@ describe('engine', function () {
         var client = net.createConnection(server.address().port);
         client.setEncoding('ascii');
         client.write([
-            'GET / HTTP/1.1'
+          'GET / HTTP/1.1'
           , 'Connection: Upgrade'
           , 'Upgrade: IRC/6.9'
           , '', ''
@@ -109,7 +109,7 @@ describe('engine', function () {
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
+            'GET / HTTP/1.1'
             , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
@@ -138,7 +138,7 @@ describe('engine', function () {
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
+            'GET / HTTP/1.1'
             , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
@@ -147,7 +147,7 @@ describe('engine', function () {
           // send from client to server
           // tests that socket is still alive
           // this will not keep the socket open as the server does not handle it
-          setTimeout(function() {
+          setTimeout(function () {
             client.write('foo');
           }, 100);
 
@@ -165,9 +165,9 @@ describe('engine', function () {
         , engine = eio.attach(server, { destroyUpgradeTimeout: 100 });
 
       // write to the socket to keep engine.io from closing it by writing before the timeout
-      server.on('upgrade', function(req, socket) {
+      server.on('upgrade', function (req, socket) {
         socket.write('foo');
-        socket.on('data', function(chunk) {
+        socket.on('data', function (chunk) {
           expect(chunk.toString()).to.be('foo');
           socket.end();
         });
@@ -179,14 +179,14 @@ describe('engine', function () {
         client.on('connect', function () {
           client.setEncoding('ascii');
           client.write([
-              'GET / HTTP/1.1'
+            'GET / HTTP/1.1'
             , 'Connection: Upgrade'
             , 'Upgrade: IRC/6.9'
             , '', ''
           ].join('\r\n'));
 
           // test that socket is still open by writing after the timeout period
-          setTimeout(function() {
+          setTimeout(function () {
             client.write('foo');
           }, 200);
 
@@ -201,9 +201,9 @@ describe('engine', function () {
     it('should preserve original request listeners', function (done) {
       var listeners = 0
         , server = http.createServer(function (req, res) {
-            expect(req && res).to.be.ok();
-            listeners++;
-          });
+          expect(req && res).to.be.ok();
+          listeners++;
+        });
 
       server.on('request', function (req, res) {
         expect(req && res).to.be.ok();

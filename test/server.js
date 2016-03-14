@@ -144,7 +144,7 @@ describe('server', function () {
 
         var customId = 'CustomId' + Date.now();
 
-        engine.generateId = function(req) {
+        engine.generateId = function (req) {
           return customId;
         };
 
@@ -257,7 +257,7 @@ describe('server', function () {
 
         engine.on('connection', function (socket) {
           socket.on('message', function (msg) {
-            if ('echo' == msg) socket.send(msg);
+            if ('echo' === msg) socket.send(msg);
           });
         });
 
@@ -323,7 +323,7 @@ describe('server', function () {
   });
 
   describe('close', function () {
-    it('should be able to access non-empty writeBuffer at closing (server)', function(done) {
+    it('should be able to access non-empty writeBuffer at closing (server)', function (done) {
       var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
@@ -341,14 +341,14 @@ describe('server', function () {
       });
     });
 
-    it('should be able to access non-empty writeBuffer at closing (client)', function(done) {
+    it('should be able to access non-empty writeBuffer at closing (client)', function (done) {
       var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.on('close', function (reason) {
             expect(socket.writeBuffer.length).to.be(1);
-            setTimeout(function() {
+            setTimeout(function () {
               expect(socket.writeBuffer.length).to.be(0);
             }, 10);
             done();
@@ -363,7 +363,7 @@ describe('server', function () {
       var opts = { allowUpgrades: false, pingInterval: 5, pingTimeout: 5 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.sendPacket = function (){};
+        socket.sendPacket = function () {};
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
             expect(reason).to.be('ping timeout');
@@ -383,7 +383,7 @@ describe('server', function () {
             done();
           });
           // client abruptly disconnects, no polling request on this tick since we've just connected
-          socket.sendPacket = socket.onPacket = function (){};
+          socket.sendPacket = socket.onPacket = function () {};
           socket.close();
           // then server app tries to close the socket, since client disappeared
           conn.close();
@@ -397,8 +397,8 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
-          socket.onPacket = function(){};
-          socket.transport.onClose = function(){};
+          socket.onPacket = function () {};
+          socket.transport.onClose = function () {};
           socket.on('close', function (reason, err) {
             expect(reason).to.be('ping timeout');
             done();
@@ -424,8 +424,8 @@ describe('server', function () {
 
         socket.on('open', function () {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
-          socket.onPacket = socket.sendPacket = function(){};
-          socket.transport.onClose = function(){};
+          socket.onPacket = socket.sendPacket = function () {};
+          socket.transport.onClose = function () {};
           socket.on('close', onClose);
         });
       });
@@ -536,7 +536,7 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
 
         engine.on('connection', function (conn) {
-          conn.send(null, function () {socket.close();});
+          conn.send(null, function () { socket.close(); });
           conn.send('this should not be handled');
 
           conn.on('close', function (reason) {
@@ -563,7 +563,7 @@ describe('server', function () {
         socket.on('open', function () {
           socket.close();
           // we wait until complete to see if we get an uncaught EPIPE
-          setTimeout(function(){
+          setTimeout(function () {
             done();
           }, 100);
         });
@@ -577,15 +577,15 @@ describe('server', function () {
         // see: https://github.com/driverdan/node-XMLHttpRequest/issues/44
         var request = require('http').request;
         var sockets = [];
-        http.request = function(opts){
+        http.request = function (opts) {
           var req = request.apply(null, arguments);
-          req.on('socket', function(socket){
+          req.on('socket', function (socket) {
             sockets.push(socket);
           });
           return req;
         };
 
-        function done(){
+        function done () {
           http.request = request;
           $done();
         }
@@ -593,13 +593,13 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port))
           , serverSocket;
 
-        engine.on('connection', function(s){
+        engine.on('connection', function (s) {
           serverSocket = s;
         });
 
-        socket.transport.on('poll', function(){
+        socket.transport.on('poll', function () {
           // we set a timer to wait for the request to actually reach
-          setTimeout(function(){
+          setTimeout(function () {
             // at this time server's `connection` should have been fired
             expect(serverSocket).to.be.an('object');
 
@@ -615,7 +615,7 @@ describe('server', function () {
 
             // kill the underlying connection
             sockets[1].end();
-            serverSocket.on('close', function(reason, err){
+            serverSocket.on('close', function (reason, err) {
               expect(reason).to.be('transport error');
               expect(err.message).to.be('poll connection closed prematurely');
               done();
@@ -625,34 +625,34 @@ describe('server', function () {
       });
     });
 
-    it('should not trigger with connection: close header', function($done){
-      var engine = listen({ allowUpgrades: false }, function(port){
+    it('should not trigger with connection: close header', function ($done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
         // intercept requests to add connection: close
         var request = http.request;
-        http.request = function(){
+        http.request = function () {
           var opts = arguments[0];
           opts.headers = opts.headers || {};
           opts.headers.Connection = 'close';
           return request.apply(this, arguments);
         };
 
-        function done(){
+        function done () {
           http.request = request;
           $done();
         }
 
-        engine.on('connection', function(socket){
-          socket.on('message', function(msg){
+        engine.on('connection', function (socket) {
+          socket.on('message', function (msg) {
             expect(msg).to.equal('test');
             socket.send('woot');
           });
         });
 
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.on('open', function(){
+        socket.on('open', function () {
           socket.send('test');
         });
-        socket.on('message', function(msg){
+        socket.on('message', function (msg) {
           expect(msg).to.be('woot');
           done();
         });
@@ -668,8 +668,8 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
 
-        socket.on('handshake', function() {
-          socket.onPacket = function(){};
+        socket.on('handshake', function () {
+          socket.onPacket = function () {};
         });
         socket.on('open', function () {
           socket.on('close', function (reason) {
@@ -677,7 +677,7 @@ describe('server', function () {
           });
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
           expect(clientCloseReason).to.be(null);
           done();
         }, 200);
@@ -693,9 +693,9 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
 
-        engine.on('connection', function(conn){
-          conn.on('heartbeat', function() {
-            conn.onPacket = function(){};
+        engine.on('connection', function (conn) {
+          conn.on('heartbeat', function () {
+            conn.onPacket = function () {};
           });
         });
 
@@ -705,7 +705,7 @@ describe('server', function () {
           });
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
           expect(clientCloseReason).to.be(null);
           done();
         }, 100);
@@ -727,12 +727,12 @@ describe('server', function () {
           });
         });
 
-        engine.on('connection', function(conn){
-          conn.on('heartbeat', function() {
-            setTimeout(function() {
+        engine.on('connection', function (conn) {
+          conn.on('heartbeat', function () {
+            setTimeout(function () {
               conn.close();
             }, 20);
-            setTimeout(function() {
+            setTimeout(function () {
               expect(clientCloseReason).to.be('transport close');
               done();
             }, 100);
@@ -754,16 +754,16 @@ describe('server', function () {
           });
         });
 
-        engine.on('connection', function(conn){
-          conn.once('heartbeat', function() {
-            setTimeout(function() {
-              socket.onPacket = function(){};
+        engine.on('connection', function (conn) {
+          conn.once('heartbeat', function () {
+            setTimeout(function () {
+              socket.onPacket = function () {};
               expect(clientCloseReason).to.be(null);
             }, 150);
-            setTimeout(function() {
+            setTimeout(function () {
               expect(clientCloseReason).to.be(null);
             }, 350);
-            setTimeout(function() {
+            setTimeout(function () {
               expect(clientCloseReason).to.be('ping timeout');
               done();
             }, 500);
@@ -795,15 +795,15 @@ describe('server', function () {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // websocket test, transport error
-    it('should trigger transport close before open for ws', function(done){
+    it('should trigger transport close before open for ws', function (done) {
       var opts = { transports: ['websocket'] };
       var engine = listen(opts, function (port) {
         var url = 'ws://%s:%d'.s('0.0.0.50', port);
         var socket = new eioc.Socket(url);
-        socket.on('open', function(){
+        socket.on('open', function () {
           done(new Error('Test invalidation'));
         });
-        socket.on('close', function(reason){
+        socket.on('close', function (reason) {
           expect(reason).to.be('transport error');
           done();
         });
@@ -812,14 +812,14 @@ describe('server', function () {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // polling test, transport error
-    it('should trigger transport close before open for xhr', function(done){
+    it('should trigger transport close before open for xhr', function (done) {
       var opts = { transports: ['polling'] };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://invalidserver:%d'.s(port));
-        socket.on('open', function(){
+        socket.on('open', function () {
           done(new Error('Test invalidation'));
         });
-        socket.on('close', function(reason){
+        socket.on('close', function (reason) {
           expect(reason).to.be('transport error');
           done();
         });
@@ -828,14 +828,14 @@ describe('server', function () {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // websocket test, force close
-    it('should trigger force close before open for ws', function(done){
+    it('should trigger force close before open for ws', function (done) {
       var opts = { transports: ['websocket'] };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-        socket.on('open', function(){
+        socket.on('open', function () {
           done(new Error('Test invalidation'));
         });
-        socket.on('close', function(reason){
+        socket.on('close', function (reason) {
           expect(reason).to.be('forced close');
           done();
         });
@@ -845,14 +845,14 @@ describe('server', function () {
 
     // tests https://github.com/LearnBoost/engine.io-client/issues/207
     // polling test, force close
-    it('should trigger force close before open for xhr', function(done){
+    it('should trigger force close before open for xhr', function (done) {
       var opts = { transports: ['polling'] };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
-        socket.on('open', function(){
+        socket.on('open', function () {
           done(new Error('Test invalidation'));
         });
-        socket.on('close', function(reason){
+        socket.on('close', function (reason) {
           expect(reason).to.be('forced close');
           done();
         });
@@ -868,7 +868,7 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         // override to simulate an inactive client
-        socket.sendPacket = socket.onHeartbeat = function (){};
+        socket.sendPacket = socket.onHeartbeat = function () {};
       });
     });
 
@@ -880,7 +880,7 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
         // override to simulate an inactive client
-        socket.sendPacket = socket.onHeartbeat = function (){};
+        socket.sendPacket = socket.onHeartbeat = function () {};
       });
     });
 
@@ -906,7 +906,7 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
         socket.on('open', function () {
-          socket.transport.doWrite('invalid', function (){});
+          socket.transport.doWrite('invalid', function () {});
         });
       });
     });
@@ -934,18 +934,18 @@ describe('server', function () {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('upgrading', function (transport) {
           // override not to complete upgrading
-          transport.send = function (){};
+          transport.send = function () {};
         });
       });
     });
 
-    it('should not crash when messing with Object prototype', function(done){
+    it('should not crash when messing with Object prototype', function (done) {
       Object.prototype.foo = 'bar';
       var engine = listen({ allowUpgrades: true }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           engine.close();
-          setTimeout(function(){
+          setTimeout(function () {
             done();
           }, 100);
         });
@@ -953,20 +953,20 @@ describe('server', function () {
     });
 
     describe('graceful close', function () {
-      function fixture(filename) {
+      function fixture (filename) {
         return process.execPath + ' ' +
           path.join(__dirname, 'fixtures', filename);
       }
 
-      it('should stop socket and timers', function(done){
+      it('should stop socket and timers', function (done) {
         exec(fixture('server-close.js'), done);
       });
 
-      it('should stop upgraded socket and timers', function(done){
+      it('should stop upgraded socket and timers', function (done) {
         exec(fixture('server-close-upgraded.js'), done);
       });
 
-      it('should stop upgrading socket and timers', function(done){
+      it('should stop upgrading socket and timers', function (done) {
         exec(fixture('server-close-upgrading.js'), done);
       });
     });
@@ -1027,12 +1027,12 @@ describe('server', function () {
       });
     });
 
-    it('should not be receiving data when getting a message longer than maxHttpBufferSize when polling', function(done) {
+    it('should not be receiving data when getting a message longer than maxHttpBufferSize when polling', function (done) {
       var opts = { allowUpgrades: false, transports: ['polling'], maxHttpBufferSize: 5 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             console.log(msg);
           });
         });
@@ -1043,12 +1043,12 @@ describe('server', function () {
       setTimeout(done, 1000);
     });
 
-    it('should receive data when getting a message shorter than maxHttpBufferSize when polling', function(done) {
+    it('should receive data when getting a message shorter than maxHttpBufferSize when polling', function (done) {
       var opts = { allowUpgrades: false, transports: ['polling'], maxHttpBufferSize: 5 };
       var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('a');
             done();
           });
@@ -1143,7 +1143,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
@@ -1151,7 +1151,7 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          socket.on('message', function(msg) {
+          socket.on('message', function (msg) {
             for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1169,7 +1169,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
@@ -1177,7 +1177,7 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          socket.on('message', function(msg) {
+          socket.on('message', function (msg) {
             for (var i = 0, ii = 0; ii < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
@@ -1195,7 +1195,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
@@ -1203,7 +1203,7 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          socket.on('message', function(msg) {
+          socket.on('message', function (msg) {
             for (var i = 0, ii = 0; ii < binaryData.length; i += 4, ii++) {
               var num = msg.readInt32LE(i);
               expect(num).to.be((ii + 100) * 9823);
@@ -1221,7 +1221,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
 
         engine.on('connection', function (conn) {
@@ -1229,7 +1229,7 @@ describe('server', function () {
         });
 
         socket.on('open', function () {
-          socket.on('message', function(msg) {
+          socket.on('message', function (msg) {
             for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1247,15 +1247,15 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['polling'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
 
         engine.on('connection', function (conn) {
           conn.send(binaryData);
         });
 
-        socket.on('open', function() {
-          socket.on('message', function(msg) {
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
             for (var i = 0; i < binaryData.length; i++) {
               var num = msg.readInt8(i);
               expect(num).to.be(i);
@@ -1274,7 +1274,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['websocket'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.binaryType = 'arraybuffer';
 
@@ -1282,8 +1282,8 @@ describe('server', function () {
           conn.send(binaryData);
         });
 
-        socket.on('open', function() {
-          socket.on('message', function(msg) {
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
             expect(msg instanceof ArrayBuffer).to.be(true);
             var intArray = new Int8Array(msg);
             for (var i = 0; i < binaryData.length; i++) {
@@ -1303,7 +1303,7 @@ describe('server', function () {
       }
 
       var opts = { allowUpgrades: false, transports: ['polling'] };
-      var engine = listen(opts, function(port) {
+      var engine = listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
         socket.binaryType = 'arraybuffer';
 
@@ -1311,8 +1311,8 @@ describe('server', function () {
           conn.send(binaryData);
         });
 
-        socket.on('open', function() {
-          socket.on('message', function(msg) {
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
             expect(msg instanceof ArrayBuffer).to.be(true);
             var intArray = new Int8Array(msg);
             for (var i = 0; i < binaryData.length; i++) {
@@ -1326,27 +1326,27 @@ describe('server', function () {
     });
 
 
-    it('should trigger a flush/drain event', function(done){
-      var engine = listen({ allowUpgrades: false }, function(port){
-        engine.on('connection', function(socket){
+    it('should trigger a flush/drain event', function (done) {
+      var engine = listen({ allowUpgrades: false }, function (port) {
+        engine.on('connection', function (socket) {
           var totalEvents = 4;
 
-          engine.on('flush', function(sock, buf){
+          engine.on('flush', function (sock, buf) {
             expect(sock).to.be(socket);
             expect(buf).to.be.an('array');
             --totalEvents || done();
           });
-          socket.on('flush', function(buf){
+          socket.on('flush', function (buf) {
             expect(buf).to.be.an('array');
             --totalEvents || done();
           });
 
-          engine.on('drain', function(sock){
+          engine.on('drain', function (sock) {
             expect(sock).to.be(socket);
             expect(socket.writeBuffer.length).to.be(0);
             --totalEvents || done();
           });
-          socket.on('drain', function(){
+          socket.on('drain', function () {
             expect(socket.writeBuffer.length).to.be(0);
             --totalEvents || done();
           });
@@ -1378,7 +1378,7 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('open', function () {
-          for (var i=0;i<messageCount;i++) {
+          for (var i = 0;i < messageCount;i++) {
 //            connection.send('message: ' + i);   // works
             connection.send(messagePayload + '|message: ' + i);   // does not work
           }
@@ -1393,7 +1393,7 @@ describe('server', function () {
       });
     });
 
-    it('should support chinese', function(done){
+    it('should support chinese', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var shi = '石室詩士施氏，嗜獅，誓食十獅。';
@@ -1402,23 +1402,23 @@ describe('server', function () {
           conn.send('.');
           conn.send(shi);
           conn.send(shi2);
-          conn.once('message', function(msg0){
+          conn.once('message', function (msg0) {
             expect(msg0).to.be('.');
-            conn.once('message', function(msg){
+            conn.once('message', function (msg) {
               expect(msg).to.be(shi);
-              conn.once('message', function(msg2){
+              conn.once('message', function (msg2) {
                 expect(msg2).to.be(shi2);
                 done();
               });
             });
           });
         });
-        socket.on('open', function(){
-          socket.once('message', function(msg0){
+        socket.on('open', function () {
+          socket.once('message', function (msg0) {
             expect(msg0).to.be('.');
-            socket.once('message', function(msg){
+            socket.once('message', function (msg) {
               expect(msg).to.be(shi);
-              socket.once('message', function(msg2){
+              socket.once('message', function (msg2) {
                 expect(msg2).to.be(shi2);
                 socket.send('.');
                 socket.send(shi);
@@ -1430,7 +1430,7 @@ describe('server', function () {
       });
     });
 
-    it('should send and receive data with key and cert (polling)', function(done){
+    it('should send and receive data with key and cert (polling)', function (done) {
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1446,31 +1446,31 @@ describe('server', function () {
         transports: ['polling'],
       };
 
-      var srv = https.createServer(srvOpts, function(req, res){
+      var srv = https.createServer(srvOpts, function (req, res) {
         res.writeHead(200);
         res.end('hello world\n');
       });
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function() {
+      srv.listen(null, function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('hello');
             done();
           });
         });
 
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.send('hello');
         });
       });
     });
 
-    it('should send and receive data with ca when not requiring auth (polling)', function(done){
+    it('should send and receive data with ca when not requiring auth (polling)', function (done) {
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1483,31 +1483,31 @@ describe('server', function () {
         transports: ['polling']
       };
 
-      var srv = https.createServer(srvOpts, function(req, res){
+      var srv = https.createServer(srvOpts, function (req, res) {
         res.writeHead(200);
         res.end('hello world\n');
       });
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function() {
+      srv.listen(null, function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('hello');
             done();
           });
         });
 
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.send('hello');
         });
       });
     });
 
-    it('should send and receive data with key and cert (ws)', function(done){
+    it('should send and receive data with key and cert (ws)', function (done) {
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1523,31 +1523,31 @@ describe('server', function () {
         transports: ['websocket']
       };
 
-      var srv = https.createServer(srvOpts, function(req, res){
+      var srv = https.createServer(srvOpts, function (req, res) {
         res.writeHead(200);
         res.end('hello world\n');
       });
 
       var engine = eio({ transports: ['websocket'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function() {
+      srv.listen(null, function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('hello');
             done();
           });
         });
 
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.send('hello');
         });
       });
     });
 
-    it('should send and receive data with pfx (polling)', function(done){
+    it('should send and receive data with pfx (polling)', function (done) {
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1562,31 +1562,31 @@ describe('server', function () {
         transports: ['polling']
       };
 
-      var srv = https.createServer(srvOpts, function(req, res){
+      var srv = https.createServer(srvOpts, function (req, res) {
         res.writeHead(200);
         res.end('hello world\n');
       });
 
       var engine = eio({ transports: ['polling'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function() {
+      srv.listen(null, function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('hello');
             done();
           });
         });
 
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.send('hello');
         });
       });
     });
 
-    it('should send and receive data with pfx (ws)', function(done){
+    it('should send and receive data with pfx (ws)', function (done) {
       var srvOpts = {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
@@ -1601,44 +1601,44 @@ describe('server', function () {
         transports: ['websocket']
       };
 
-      var srv = https.createServer(srvOpts, function(req, res){
+      var srv = https.createServer(srvOpts, function (req, res) {
         res.writeHead(200);
         res.end('hello world\n');
       });
 
       var engine = eio({ transports: ['websocket'], allowUpgrades: false });
       engine.attach(srv);
-      srv.listen(null, function() {
+      srv.listen(null, function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
         engine.on('connection', function (conn) {
-          conn.on('message', function(msg) {
+          conn.on('message', function (msg) {
             expect(msg).to.be('hello');
             done();
           });
         });
 
-        socket.on('open', function() {
+        socket.on('open', function () {
           socket.send('hello');
         });
       });
     });
   });
 
-  describe('send', function() {
-    describe('writeBuffer', function() {
+  describe('send', function () {
+    describe('writeBuffer', function () {
       it('should not empty until `drain` event (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var totalEvents = 2;
-          socket.on('open', function() {
+          socket.on('open', function () {
             socket.send('a');
             socket.send('b');
             // writeBuffer should be nonempty, with 'a' still in it
             expect(socket.writeBuffer.length).to.eql(2);
           });
-          socket.transport.on('drain', function() {
+          socket.transport.on('drain', function () {
             expect(socket.writeBuffer.length).to.eql(--totalEvents);
             totalEvents || done();
           });
@@ -1649,13 +1649,13 @@ describe('server', function () {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var totalEvents = 2;
-          socket.on('open', function() {
+          socket.on('open', function () {
             socket.send('a');
             socket.send('b');
             // writeBuffer should be nonempty, with 'a' still in it
             expect(socket.writeBuffer.length).to.eql(2);
           });
-          socket.transport.on('drain', function() {
+          socket.transport.on('drain', function () {
             expect(socket.writeBuffer.length).to.eql(--totalEvents);
             totalEvents || done();
           });
@@ -1663,21 +1663,21 @@ describe('server', function () {
       });
     });
 
-    describe('callback', function() {
+    describe('callback', function () {
       it('should execute in order when message sent (client) (polling)', function (done) {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var i = 0;
           var j = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function(msg) {
+          engine.on('connection', function (conn) {
+            conn.on('message', function (msg) {
               conn.send(msg);
             });
           });
 
           socket.on('open', function () {
-            socket.on('message', function(msg) {
+            socket.on('message', function (msg) {
               // send another packet until we've sent 3 total
               if (++i < 3) {
                 expect(i).to.eql(j);
@@ -1687,8 +1687,8 @@ describe('server', function () {
               }
             });
 
-            function sendFn() {
-              socket.send(j, (function(value) {
+            function sendFn () {
+              socket.send(j, (function (value) {
                 j++;
               })(j));
             }
@@ -1704,14 +1704,14 @@ describe('server', function () {
           var i = 0;
           var j = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function(msg) {
+          engine.on('connection', function (conn) {
+            conn.on('message', function (msg) {
               conn.send(msg);
             });
           });
 
           socket.on('open', function () {
-            socket.on('message', function(msg) {
+            socket.on('message', function (msg) {
               // send another packet until we've sent 3 total
               if (++i < 3) {
                 expect(i).to.eql(j);
@@ -1721,8 +1721,8 @@ describe('server', function () {
               }
             });
 
-            function sendFn() {
-              socket.send(j, (function(value) {
+            function sendFn () {
+              socket.send(j, (function (value) {
                 j++;
               })(j));
             }
@@ -1738,33 +1738,33 @@ describe('server', function () {
           var i = 0;
           var lastCbFired = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function(msg) {
+          engine.on('connection', function (conn) {
+            conn.on('message', function (msg) {
               conn.send(msg);
             });
           });
 
           socket.on('open', function () {
-            socket.on('message', function(msg) {
+            socket.on('message', function (msg) {
               expect(msg).to.eql(i + 1);
               i++;
             });
 
-            function cb(value) {
+            function cb (value) {
               expect(value).to.eql(lastCbFired + 1);
               lastCbFired = value;
-              if (value == 3) {
+              if (value === 3) {
                 done();
               }
             }
 
             // 2 and 3 will be in the same payload
-            socket.once('flush', function() {
-              socket.send(2, function() { cb(2); });
-              socket.send(3, function() { cb(3); });
+            socket.once('flush', function () {
+              socket.send(2, function () { cb(2); });
+              socket.send(3, function () { cb(3); });
             });
 
-            socket.send(1, function() { cb(1); });
+            socket.send(1, function () { cb(1); });
           });
         });
       });
@@ -1775,33 +1775,33 @@ describe('server', function () {
           var i = 0;
           var lastCbFired = 0;
 
-          engine.on('connection', function(conn) {
-            conn.on('message', function(msg) {
+          engine.on('connection', function (conn) {
+            conn.on('message', function (msg) {
               conn.send(msg);
             });
           });
 
           socket.on('open', function () {
-            socket.on('message', function(msg) {
+            socket.on('message', function (msg) {
               expect(msg).to.eql(i + 1);
               i++;
             });
 
-            function cb(value) {
+            function cb (value) {
               expect(value).to.eql(lastCbFired + 1);
               lastCbFired = value;
-              if (value == 3) {
+              if (value === 3) {
                 done();
               }
             }
 
             // 2 and 3 will be in the same payload
-            socket.once('flush', function() {
-              socket.send(2, function() { cb(2); });
-              socket.send(3, function() { cb(3); });
+            socket.once('flush', function () {
+              socket.send(2, function () { cb(2); });
+              socket.send(3, function () { cb(3); });
             });
 
-            socket.send(1, function() { cb(1); });
+            socket.send(1, function () { cb(1); });
           });
         });
       });
@@ -1823,7 +1823,7 @@ describe('server', function () {
             });
           });
 
-          setTimeout(function() {
+          setTimeout(function () {
             expect(i).to.be(j);
             done();
           }, 100);
@@ -1871,11 +1871,11 @@ describe('server', function () {
 
           socket.on('open', function () {
             socket.on('message', function (msg) {
-              if (msg === 'a') a ++;
-              if (msg === 'b') b ++;
-              if (msg === 'c') c ++;
+              if (msg === 'a') a++;
+              if (msg === 'b') b++;
+              if (msg === 'c') c++;
 
-              if(++all === 3) {
+              if (++all === 3) {
                 expect(a).to.be(1);
                 expect(b).to.be(1);
                 expect(c).to.be(1);
@@ -1983,7 +1983,7 @@ describe('server', function () {
         var engine = listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
 
-          socket.transport.on('pollComplete', function(msg) {
+          socket.transport.on('pollComplete', function (msg) {
             socket.close();
           });
 
@@ -2002,7 +2002,7 @@ describe('server', function () {
     });
   });
 
-  describe('packet', function() {
+  describe('packet', function () {
     it('should emit when socket receives packet', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
@@ -2033,12 +2033,12 @@ describe('server', function () {
     });
   });
 
-  describe('packetCreate', function() {
+  describe('packetCreate', function () {
     it('should emit before socket send message', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
-          conn.on('packetCreate', function(packet) {
+          conn.on('packetCreate', function (packet) {
             expect(packet.type).to.be('message');
             expect(packet.data).to.be('a');
             done();
@@ -2079,7 +2079,7 @@ describe('server', function () {
           var interval = setInterval(function () {
             lastSent++;
             conn.send(lastSent);
-            if (50 == lastSent) {
+            if (50 === lastSent) {
               clearInterval(interval);
               --ready || finish();
             }
@@ -2116,7 +2116,7 @@ describe('server', function () {
           var interval = setInterval(function () {
             lastSent++;
             socket.send(lastSent);
-            if (50 == lastSent) {
+            if (50 === lastSent) {
               clearInterval(interval);
               --ready || finish();
             }
@@ -2168,13 +2168,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'gzip, deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.equal('gzip');
             res.pipe(zlib.createGunzip())
               .on('error', done)
@@ -2196,13 +2196,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.equal('deflate');
             res.pipe(zlib.createDeflate())
               .on('error', done)
@@ -2224,13 +2224,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'gzip, deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.equal('gzip');
             done();
           });
@@ -2249,13 +2249,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'gzip, deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.be(undefined);
             done();
           });
@@ -2274,13 +2274,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'gzip, deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.be(undefined);
             done();
           });
@@ -2299,13 +2299,13 @@ describe('server', function () {
         http.get({
           port: port,
           path: '/engine.io/default/?transport=polling'
-        }, function(res) {
+        }, function (res) {
           var sid = res.headers['set-cookie'][0].split('=')[1];
           http.get({
             port: port,
             path: '/engine.io/default/?transport=polling&sid=' + sid,
             headers: { 'Accept-Encoding': 'gzip, deflate' }
-          }, function(res) {
+          }, function (res) {
             expect(res.headers['content-encoding']).to.be(undefined);
             done();
           });
@@ -2322,7 +2322,7 @@ describe('server', function () {
         engine.on('connection', function (conn) {
           var socket = conn.transport.socket;
           var send = socket.send;
-          socket.send = function(data, opts, callback) {
+          socket.send = function (data, opts, callback) {
             socket.send = send;
             socket.send(data, opts, callback);
 
@@ -2344,7 +2344,7 @@ describe('server', function () {
         engine.on('connection', function (conn) {
           var socket = conn.transport.socket;
           var send = socket.send;
-          socket.send = function(data, opts, callback) {
+          socket.send = function (data, opts, callback) {
             socket.send = send;
             socket.send(data, opts, callback);
 
@@ -2370,7 +2370,7 @@ describe('server', function () {
       'cookie': 'user_session=NI2JlCKF90aE0sJZD9ZzujtdsUqNYSBYxzlTsvdSUe35ZzdtVRGqYFr0kdGxbfc5gUOkR9RGp20GVKza; path=/; expires=Tue, 07-Apr-2015 18:18:08 GMT; secure; HttpOnly'
     };
 
-    function testForTransport(transport, done) {
+    function testForTransport (transport, done) {
       var engine = listen(function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), {
           extraHeaders: headers,
@@ -2396,10 +2396,10 @@ describe('server', function () {
   });
 
   describe('response headers', function () {
-    function testForHeaders(headers, done) {
+    function testForHeaders (headers, done) {
       var engine = listen(function (port) {
         engine.on('connection', function (conn) {
-          conn.transport.once('headers', function(headers) {
+          conn.transport.once('headers', function (headers) {
             expect(headers['X-XSS-Protection']).to.be('0');
             conn.close();
             done();

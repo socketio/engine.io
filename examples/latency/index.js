@@ -14,17 +14,17 @@ app.use(enchilada({
   debug: true
 }));
 app.use(express.static(__dirname + '/public'));
-app.get('/', function(req, res, next){
+app.get('/', function (req, res, next) {
   res.sendfile('index.html');
 });
 
-io.on('connection', function(socket){
-  socket.on('message', function(v){
+io.on('connection', function (socket) {
+  socket.on('message', function (v) {
     socket.send('pong');
   });
 });
 
 var port = process.env.PORT || 3000;
-server.listen(port, function(){
+server.listen(port, function () {
   console.log('\x1B[96mlistening on localhost:' + port + ' \x1B[39m');
 });
