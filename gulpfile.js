@@ -1,14 +1,15 @@
-var gulp = require('gulp');
-var mocha = require('gulp-mocha');
-var babel = require("gulp-babel");
+const gulp = require('gulp');
+const mocha = require('gulp-mocha');
+const babel = require("gulp-babel");
+const eslint = require('gulp-eslint');
 
-var TESTS = 'test/*.js';
-var REPORTER = 'dot';
+const TESTS = 'test/*.js';
+const REPORTER = 'dot';
 
 gulp.task("default", ["transpile"]);
 
 gulp.task('test', function(){
-    return gulp.src(TESTS, {read: false})
+  return gulp.src(TESTS, {read: false})
     .pipe(mocha({
       slow: 500,
       reporter: REPORTER,
