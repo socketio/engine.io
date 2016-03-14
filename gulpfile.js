@@ -23,6 +23,17 @@ gulp.task('test', function(){
     });
 });
 
+gulp.task('lint', function () {
+  return gulp.src([
+    '**/*.js',
+    '!node_modules/**',
+    '!coverage/**'
+  ])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+});
+
 // By default, individual js files are transformed by babel and exported to /dist
 gulp.task("transpile", function(){
     return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
