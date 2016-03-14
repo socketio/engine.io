@@ -36,7 +36,7 @@ gulp.task('lint', function () {
 
 // By default, individual js files are transformed by babel and exported to /dist
 gulp.task("transpile", function(){
-    return gulp.src(["lib/*.js","lib/transports/*.js"], { base: 'lib' })
+    return gulp.src(["lib/**/*.js"], { base: 'lib' })
         .pipe(babel({ "presets": ["es2015"] }))
         .pipe(gulp.dest("dist"));
 });
