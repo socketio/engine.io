@@ -3,11 +3,11 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , app = express()
-  , server = require('http').createServer(app)
-  , enchilada = require('enchilada')
-  , io = require('engine.io').attach(server);
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var enchilada = require('enchilada');
+var io = require('engine.io').attach(server);
 
 app.use(enchilada({
   src: __dirname + '/public',

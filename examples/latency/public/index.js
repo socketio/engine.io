@@ -3,10 +3,9 @@
  * Module dependencies.
  */
 
-var SmoothieChart = require('smoothie').SmoothieChart
-  , TimeSeries = require('smoothie').TimeSeries
-  , eio = require('engine.io-client');
-
+var SmoothieChart = require('smoothie').SmoothieChart;
+var TimeSeries = require('smoothie').TimeSeries;
+var eio = require('engine.io-client');
 
 // helper
 
@@ -34,7 +33,7 @@ function render () {
 var socket = new eio.Socket();
 var last;
 function send () {
-  last = new Date;
+  last = new Date();
   socket.send('ping');
   $('transport').innerHTML = socket.transport.name;
 }
@@ -50,8 +49,8 @@ socket.on('close', function () {
   $('transport').innerHTML = '(disconnected)';
 });
 socket.on('message', function () {
-  var latency = new Date - last;
+  var latency = new Date() - last;
   $('latency').innerHTML = latency + 'ms';
-  if (time) time.append(+new Date, latency);
+  if (time) time.append(+new Date(), latency);
   setTimeout(send, 100);
 });
