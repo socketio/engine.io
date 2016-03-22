@@ -3,17 +3,15 @@
  * Module dependencies.
  */
 
-var http = require('http');
 var eioc = require('engine.io-client');
 var listen = require('./common').listen;
 var expect = require('expect.js');
 var request = require('superagent');
-var WebSocket = require('ws');
 
 describe('JSONP', function () {
   before(function () {
     // we have to override the browser's functionality for JSONP
-    document = {
+    document = { // eslint-disable-line no-native-reassign, no-undef
       body: {
         appendChild: function () {},
         removeChild: function () {}
@@ -32,7 +30,7 @@ describe('JSONP', function () {
 
         script.__defineSetter__('src', function (uri) {
           request.get(uri).end(function (res) {
-            eval(res.text);
+            eval(res.text); // eslint-disable-line no-eval
           });
         });
         return script;
@@ -56,7 +54,7 @@ describe('JSONP', function () {
       } else if ('textarea' === name) {
         var textarea = {};
 
-        //a hack to be able to access the area data when form is sent
+        // a hack to be able to access the area data when form is sent
         textarea.__defineSetter__('value', function (data) {
           self.areaValue = data;
         });
@@ -83,16 +81,16 @@ describe('JSONP', function () {
   });
 
   after(function () {
-    delete document.getElementsByTagName
-      , document.createElement;
+    delete document.getElementsByTagName;
+    delete document.createElement;
     delete global.document;
   });
 
   describe('handshake', function () {
     it('should open with polling JSONP when requested', function (done) {
-      var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:' + port
-          , { transports: ['polling'], forceJSONP: true, upgrade: false });
+      var engine = listen({ allowUpgrades: false, transports: ['polling'] }, function (port) {
+        eioc('ws://localhost:' + port,
+          { transports: ['polling'], forceJSONP: true, upgrade: false });
         engine.on('connection', function (socket) {
           expect(socket.transport.name).to.be('polling');
           expect(socket.transport.head).to.be('___eio[0](');
@@ -106,7 +104,7 @@ describe('JSONP', function () {
     var engine, port, socket;
 
     beforeEach(function (done) {
-      engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (p) {
+      engine = listen({ allowUpgrades: false, transports: ['polling'] }, function (p) {
         port = p;
 
         socket = new eioc.Socket('ws://localhost:' + port
@@ -136,12 +134,12 @@ describe('JSONP', function () {
     it('should not fail JSON.parse for stringified messages', function (done) {
       engine.on('connection', function (conn) {
         conn.on('message', function (message) {
-          expect(JSON.parse(message)).to.be.eql({test : 'a\r\nb\n\n\n\nc'});
+          expect(JSON.parse(message)).to.be.eql({test: 'a\r\nb\n\n\n\nc'});
           done();
         });
       });
       socket.on('open', function () {
-        socket.send(JSON.stringify({test : 'a\r\nb\n\n\n\nc'}));
+        socket.send(JSON.stringify({test: 'a\r\nb\n\n\n\nc'}));
       });
     });
 
@@ -178,10 +176,10 @@ describe('JSONP', function () {
 
   describe('close', function () {
     it('should trigger when server closes a client', function (done) {
-      var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:' + port
-            , { transports: ['polling'], forceJSONP: true, upgrade: false })
-            , total = 2;
+      var engine = listen({ allowUpgrades: false, transports: ['polling'] }, function (port) {
+        var socket = new eioc.Socket('ws://localhost:' + port,
+            { transports: ['polling'], forceJSONP: true, upgrade: false });
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
@@ -203,10 +201,10 @@ describe('JSONP', function () {
     });
 
     it('should trigger when client closes', function (done) {
-      var engine = listen( { allowUpgrades: false, transports: ['polling'] }, function (port) {
+      var engine = listen({ allowUpgrades: false, transports: ['polling'] }, function (port) {
         var socket = new eioc.Socket('ws://localhost:' + port
-          , { transports: ['polling'], forceJSONP: true, upgrade: false })
-          , total = 2;
+          , { transports: ['polling'], forceJSONP: true, upgrade: false });
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {

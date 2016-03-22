@@ -14,7 +14,6 @@ var eioc = require('engine.io-client');
 var listen = require('./common').listen;
 var expect = require('expect.js');
 var request = require('superagent');
-var WebSocket = require('ws');
 
 // are we running on node 0.8?
 var NODE_0_8 = /^v0\.8\./.test(process.version);
@@ -24,10 +23,9 @@ var NODE_0_8 = /^v0\.8\./.test(process.version);
  */
 
 describe('server', function () {
-
   describe('verification', function () {
     it('should disallow non-existent transports', function (done) {
-      var engine = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (res) {
@@ -42,7 +40,7 @@ describe('server', function () {
 
     it('should disallow `constructor` as transports', function (done) {
       // make sure we check for actual properties - not those present on every {}
-      var engine = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'constructor' })
@@ -58,7 +56,7 @@ describe('server', function () {
     });
 
     it('should disallow non-existent sids', function (done) {
-      var engine = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling', sid: 'test' })
@@ -76,7 +74,7 @@ describe('server', function () {
 
   describe('handshake', function () {
     it('should send the io cookie', function (done) {
-      var engine = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
@@ -89,7 +87,7 @@ describe('server', function () {
     });
 
     it('should send the io cookie custom name', function (done) {
-      var engine = listen({ cookie: 'woot' }, function (port) {
+      listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
@@ -101,7 +99,7 @@ describe('server', function () {
     });
 
     it('should send the cookie with custom path', function (done) {
-      var engine = listen({ cookiePath: '/' }, function (port) {
+      listen({ cookiePath: '/' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
@@ -113,7 +111,7 @@ describe('server', function () {
     });
 
     it('should not send the io cookie', function (done) {
-      var engine = listen({ cookie: false }, function (port) {
+      listen({ cookie: false }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling' })
           .end(function (res) {
@@ -160,7 +158,7 @@ describe('server', function () {
     });
 
     it('should exchange handshake data', function (done) {
-      var engine = listen({ allowUpgrades: false }, function (port) {
+      listen({ allowUpgrades: false }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('handshake', function (obj) {
           expect(obj.sid).to.be.a('string');
@@ -172,7 +170,7 @@ describe('server', function () {
     });
 
     it('should allow custom ping timeouts', function (done) {
-      var engine = listen({ allowUpgrades: false, pingTimeout: 123 }, function (port) {
+      listen({ allowUpgrades: false, pingTimeout: 123 }, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
         socket.on('handshake', function (obj) {
           expect(obj.pingTimeout).to.be(123);
@@ -183,7 +181,7 @@ describe('server', function () {
 
     it('should trigger a connection event with a Socket', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
         engine.on('connection', function (socket) {
           expect(socket).to.be.an(eio.Socket);
           done();
@@ -193,7 +191,7 @@ describe('server', function () {
 
     it('should open with polling by default', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
         engine.on('connection', function (socket) {
           expect(socket.transport.name).to.be('polling');
           done();
@@ -203,7 +201,7 @@ describe('server', function () {
 
     it('should be able to open with ws directly', function (done) {
       var engine = listen({ transports: ['websocket'] }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        eioc('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         engine.on('connection', function (socket) {
           expect(socket.transport.name).to.be('websocket');
           done();
@@ -212,7 +210,7 @@ describe('server', function () {
     });
 
     it('should not suggest any upgrades for websocket', function (done) {
-      var engine = listen({ transports: ['websocket'] }, function (port) {
+      listen({ transports: ['websocket'] }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('handshake', function (obj) {
           expect(obj.upgrades).to.have.length(0);
@@ -222,7 +220,7 @@ describe('server', function () {
     });
 
     it('should not suggest upgrades when none are availble', function (done) {
-      var engine = listen({ transports: ['polling'] }, function (port) {
+      listen({ transports: ['polling'] }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
         socket.on('handshake', function (obj) {
           expect(obj.upgrades).to.have.length(0);
@@ -232,7 +230,7 @@ describe('server', function () {
     });
 
     it('should only suggest available upgrades', function (done) {
-      var engine = listen({ transports: ['polling'] }, function (port) {
+      listen({ transports: ['polling'] }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
         socket.on('handshake', function (obj) {
           expect(obj.upgrades).to.have.length(0);
@@ -242,7 +240,7 @@ describe('server', function () {
     });
 
     it('should suggest all upgrades when no transports are disabled', function (done) {
-      var engine = listen({}, function (port) {
+      listen({}, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { });
         socket.on('handshake', function (obj) {
           expect(obj.upgrades).to.have.length(1);
@@ -254,7 +252,6 @@ describe('server', function () {
 
     it('default to polling when proxy doesn\'t support websocket', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-
         engine.on('connection', function (socket) {
           socket.on('message', function (msg) {
             if ('echo' === msg) socket.send(msg);
@@ -282,7 +279,7 @@ describe('server', function () {
 
     it('should allow arbitrary data through query string', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { query: { a: 'b' } });
+        eioc('ws://localhost:%d'.s(port), { query: { a: 'b' } });
         engine.on('connection', function (conn) {
           expect(conn.request._query).to.have.keys('transport', 'a');
           expect(conn.request._query.a).to.be('b');
@@ -293,7 +290,7 @@ describe('server', function () {
 
     it('should allow data through query string in uri', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d?a=b&c=d'.s(port));
+        eioc('ws://localhost:%d?a=b&c=d'.s(port));
         engine.on('connection', function (conn) {
           expect(conn.request._query.EIO).to.be.a('string');
           expect(conn.request._query.a).to.be('b');
@@ -303,10 +300,8 @@ describe('server', function () {
       });
     });
 
-
-
     it('should disallow bad requests', function (done) {
-      var engine = listen(function (port) {
+      listen(function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'websocket' })
@@ -326,7 +321,7 @@ describe('server', function () {
     it('should be able to access non-empty writeBuffer at closing (server)', function (done) {
       var opts = {allowUpgrades: false};
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('http://localhost:%d'.s(port));
+        eioc('http://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
             expect(conn.writeBuffer.length).to.be(1);
@@ -335,7 +330,7 @@ describe('server', function () {
             }, 10);
             done();
           });
-          conn.writeBuffer.push({ type: 'message', data: 'foo'});
+          conn.writeBuffer.push({ type: 'message', data: 'foo' });
           conn.onError('');
         });
       });
@@ -343,7 +338,7 @@ describe('server', function () {
 
     it('should be able to access non-empty writeBuffer at closing (client)', function (done) {
       var opts = {allowUpgrades: false};
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
         socket.on('open', function () {
           socket.on('close', function (reason) {
@@ -353,7 +348,7 @@ describe('server', function () {
             }, 10);
             done();
           });
-          socket.writeBuffer.push({ type: 'message', data: 'foo'});
+          socket.writeBuffer.push({ type: 'message', data: 'foo' });
           socket.onError('');
         });
       });
@@ -393,7 +388,7 @@ describe('server', function () {
 
     it('should trigger on client if server does not meet ping timeout', function (done) {
       var opts = { allowUpgrades: false, pingInterval: 50, pingTimeout: 30 };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           // override onPacket and Transport#onClose to simulate an inactive server after handshake
@@ -410,8 +405,8 @@ describe('server', function () {
     it('should trigger on both ends upon ping timeout', function (done) {
       var opts = { allowUpgrades: false, pingTimeout: 10, pingInterval: 10 };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          , total = 2;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var total = 2;
 
         function onClose (reason, err) {
           expect(reason).to.be('ping timeout');
@@ -433,8 +428,8 @@ describe('server', function () {
 
     it('should trigger when server closes a client', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          , total = 2;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
@@ -458,8 +453,8 @@ describe('server', function () {
     it('should trigger when server closes a client (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-          , total = 2;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
@@ -482,8 +477,8 @@ describe('server', function () {
 
     it('should trigger when client closes', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          , total = 2;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
@@ -508,8 +503,8 @@ describe('server', function () {
     it('should trigger when client closes (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-          , total = 2;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        var total = 2;
 
         engine.on('connection', function (conn) {
           conn.on('close', function (reason) {
@@ -558,7 +553,7 @@ describe('server', function () {
     });
 
     it('should abort upgrade if socket is closed (GH-35)', function (done) {
-      var engine = listen({ allowUpgrades: true }, function (port) {
+      listen({ allowUpgrades: true }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           socket.close();
@@ -590,8 +585,8 @@ describe('server', function () {
           $done();
         }
 
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          , serverSocket;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var serverSocket;
 
         engine.on('connection', function (s) {
           serverSocket = s;
@@ -664,7 +659,7 @@ describe('server', function () {
       // first timeout should trigger after `pingInterval + pingTimeout`,
       // not just `pingTimeout`.
       var opts = { allowUpgrades: false, pingInterval: 300, pingTimeout: 100 };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         var clientCloseReason = null;
 
@@ -797,7 +792,7 @@ describe('server', function () {
     // websocket test, transport error
     it('should trigger transport close before open for ws', function (done) {
       var opts = { transports: ['websocket'] };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var url = 'ws://%s:%d'.s('0.0.0.50', port);
         var socket = new eioc.Socket(url);
         socket.on('open', function () {
@@ -814,7 +809,7 @@ describe('server', function () {
     // polling test, transport error
     it('should trigger transport close before open for xhr', function (done) {
       var opts = { transports: ['polling'] };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('http://invalidserver:%d'.s(port));
         socket.on('open', function () {
           done(new Error('Test invalidation'));
@@ -830,7 +825,7 @@ describe('server', function () {
     // websocket test, force close
     it('should trigger force close before open for ws', function (done) {
       var opts = { transports: ['websocket'] };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           done(new Error('Test invalidation'));
@@ -847,7 +842,7 @@ describe('server', function () {
     // polling test, force close
     it('should trigger force close before open for xhr', function (done) {
       var opts = { transports: ['polling'] };
-      var engine = listen(opts, function (port) {
+      listen(opts, function (port) {
         var socket = new eioc.Socket('http://localhost:%d'.s(port));
         socket.on('open', function () {
           done(new Error('Test invalidation'));
@@ -919,7 +914,7 @@ describe('server', function () {
             conn.close();
           });
         });
-        new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
       });
     });
 
@@ -940,7 +935,7 @@ describe('server', function () {
     });
 
     it('should not crash when messing with Object prototype', function (done) {
-      Object.prototype.foo = 'bar';
+      Object.prototype.foo = 'bar'; // eslint-disable-line no-extend-native
       var engine = listen({ allowUpgrades: true }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
@@ -992,9 +987,9 @@ describe('server', function () {
 
     it('should arrive from server to client (multiple)', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port))
-          , expected = ['a', 'b', 'c']
-          , i = 0;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        var expected = ['a', 'b', 'c'];
+        var i = 0;
 
         engine.on('connection', function (conn) {
           conn.send('a');
@@ -1059,7 +1054,6 @@ describe('server', function () {
       });
     });
 
-
     it('should arrive from server to client (ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
@@ -1079,9 +1073,9 @@ describe('server', function () {
     it('should arrive from server to client (multiple, ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-          , expected = ['a', 'b', 'c']
-          , i = 0;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        var expected = ['a', 'b', 'c'];
+        var i = 0;
 
         engine.on('connection', function (conn) {
           conn.send('a');
@@ -1111,9 +1105,9 @@ describe('server', function () {
     it('should arrive from server to client (multiple, no delay, ws)', function (done) {
       var opts = { allowUpgrades: false, transports: ['websocket'] };
       var engine = listen(opts, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] })
-          , expected = ['a', 'b', 'c']
-          , i = 0;
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
+        var expected = ['a', 'b', 'c'];
+        var i = 0;
 
         engine.on('connection', function (conn) {
           conn.on('close', function () {
@@ -1325,7 +1319,6 @@ describe('server', function () {
       });
     });
 
-
     it('should trigger a flush/drain event', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
         engine.on('connection', function (socket) {
@@ -1354,7 +1347,7 @@ describe('server', function () {
           socket.send('aaaa');
         });
 
-        new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
       });
     });
 
@@ -1378,7 +1371,7 @@ describe('server', function () {
         });
         var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
         socket.on('open', function () {
-          for (var i = 0;i < messageCount;i++) {
+          for (var i = 0; i < messageCount; i++) {
 //            connection.send('message: ' + i);   // works
             connection.send(messagePayload + '|message: ' + i);   // does not work
           }
@@ -1443,7 +1436,7 @@ describe('server', function () {
         key: fs.readFileSync('test/fixtures/client.key'),
         cert: fs.readFileSync('test/fixtures/client.crt'),
         ca: fs.readFileSync('test/fixtures/ca.crt'),
-        transports: ['polling'],
+        transports: ['polling']
       };
 
       var srv = https.createServer(srvOpts, function (req, res) {
@@ -1629,7 +1622,7 @@ describe('server', function () {
   describe('send', function () {
     describe('writeBuffer', function () {
       it('should not empty until `drain` event (polling)', function (done) {
-        var engine = listen({ allowUpgrades: false }, function (port) {
+        listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['polling'] });
           var totalEvents = 2;
           socket.on('open', function () {
@@ -1646,7 +1639,7 @@ describe('server', function () {
       });
 
       it('should not empty until `drain` event (websocket)', function (done) {
-        var engine = listen({ allowUpgrades: false }, function (port) {
+        listen({ allowUpgrades: false }, function (port) {
           var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var totalEvents = 2;
           socket.on('open', function () {
@@ -1900,7 +1893,6 @@ describe('server', function () {
             conn.send('a', function (transport) {
               i++;
             });
-
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
@@ -1937,7 +1929,6 @@ describe('server', function () {
             conn.send('a', function (transport) {
               i++;
             });
-
           });
           socket.on('open', function () {
             socket.on('message', function (msg) {
@@ -2021,7 +2012,7 @@ describe('server', function () {
 
     it('should emit when receives ping', function (done) {
       var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.on('packet', function (packet) {
             conn.close();
@@ -2036,7 +2027,7 @@ describe('server', function () {
   describe('packetCreate', function () {
     it('should emit before socket send message', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.on('packetCreate', function (packet) {
             expect(packet.type).to.be('message');
@@ -2050,7 +2041,7 @@ describe('server', function () {
 
     it('should emit before send pong', function (done) {
       var engine = listen({ allowUpgrades: false, pingInterval: 4 }, function (port) {
-        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        eioc('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.on('packetCreate', function (packet) {
             conn.close();
@@ -2066,7 +2057,8 @@ describe('server', function () {
     it('should upgrade', function (done) {
       var engine = listen(function (port) {
         // it takes both to send 50 to verify
-        var ready = 2, closed = 2;
+        var ready = 2;
+        var closed = 2;
         function finish () {
           setTimeout(function () {
             socket.close();
@@ -2075,7 +2067,9 @@ describe('server', function () {
 
         // server
         engine.on('connection', function (conn) {
-          var lastSent = 0, lastReceived = 0, upgraded = false;
+          var lastSent = 0;
+          var lastReceived = 0;
+          var upgraded = false;
           var interval = setInterval(function () {
             lastSent++;
             conn.send(lastSent);
@@ -2112,7 +2106,9 @@ describe('server', function () {
         // client
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
-          var lastSent = 0, lastReceived = 0, upgrades = 0;
+          var lastSent = 0;
+          var lastReceived = 0;
+          var upgrades = 0;
           var interval = setInterval(function () {
             lastSent++;
             socket.send(lastSent);
@@ -2152,7 +2148,7 @@ describe('server', function () {
       });
 
       // attach another engine to make sure it doesn't break upgrades
-      var e2 = eio.attach(engine.httpServer, { path: '/foo' });
+      eio.attach(engine.httpServer, { path: '/foo' });
     });
   });
 
@@ -2335,7 +2331,7 @@ describe('server', function () {
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf, { compress: true });
         });
-        new eioc.Socket('http://localhost:%d'.s(port), { transports: ['websocket'] });
+        eioc('http://localhost:%d'.s(port), { transports: ['websocket'] });
       });
     });
 
@@ -2357,7 +2353,7 @@ describe('server', function () {
           for (var i = 0; i < buf.length; i++) buf[i] = i % 0xff;
           conn.send(buf, { compress: true });
         });
-        new eioc.Socket('http://localhost:%d'.s(port), { transports: ['websocket'] });
+        eioc('http://localhost:%d'.s(port), { transports: ['websocket'] });
       });
     });
   });
@@ -2406,7 +2402,7 @@ describe('server', function () {
           });
           conn.send('hi');
         });
-        new eioc.Socket('ws://localhost:%d'.s(port), {
+        eioc('ws://localhost:%d'.s(port), {
           extraHeaders: headers,
           transports: ['polling']
         });
