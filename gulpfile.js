@@ -15,7 +15,8 @@ gulp.task('test', function () {
       reporter: REPORTER,
       bail: true
     }))
-    .once('error', function () {
+    .once('error', function (err) {
+      console.error(err.stack);
       process.exit(1);
     })
     .once('end', function () {
