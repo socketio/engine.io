@@ -8,7 +8,7 @@ const REPORTER = 'dot';
 
 gulp.task('default', ['transpile']);
 
-gulp.task('test', function () {
+gulp.task('test', ['lint'], function () {
   return gulp.src(TESTS, {read: false})
     .pipe(mocha({
       slow: 500,
