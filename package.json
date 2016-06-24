@@ -39,12 +39,13 @@
     "gulp-babel": "6.1.1",
     "gulp-mocha": "2.2.0",
     "mocha": "2.3.4",
+    "nsp": "^2.5.0",
     "s": "0.1.1",
     "superagent": "0.15.4",
     "uws": "0.4.0"
   },
   "scripts": {
-    "test": "gulp test; EIO_WS_ENGINE=uws gulp test;"
+    "test": "gulp test; EIO_WS_ENGINE=uws gulp test; nsp check"
   },
   "repository": {
     "type": "git",
