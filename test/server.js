@@ -87,7 +87,7 @@ describe('server', function () {
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
             done();
           });
       });
@@ -99,19 +99,19 @@ describe('server', function () {
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid+ '; Path=/');
             done();
           });
       });
     });
 
     it('should send the cookie with custom path', function (done) {
-      listen({ cookiePath: '/' }, function (port) {
+      var engine = listen({ cookiePath: '/custom' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; path=/');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom');
             done();
           });
       });
