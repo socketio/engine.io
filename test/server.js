@@ -1529,7 +1529,7 @@ describe('server', function () {
 
       var engine = eio({transports: ['polling'], allowUpgrades: false});
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1567,7 +1567,7 @@ describe('server', function () {
 
       var engine = eio({transports: ['polling'], allowUpgrades: false});
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1607,7 +1607,7 @@ describe('server', function () {
 
       var engine = eio({transports: ['websocket'], allowUpgrades: false});
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1647,7 +1647,7 @@ describe('server', function () {
 
       var engine = eio({transports: ['polling'], allowUpgrades: false});
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
@@ -1687,7 +1687,7 @@ describe('server', function () {
 
       var engine = eio({transports: ['websocket'], allowUpgrades: false});
       engine.attach(srv);
-      srv.listen(null, function () {
+      srv.listen(function () {
         var port = srv.address().port;
         var socket = new eioc.Socket('https://localhost:%d'.s(port), opts);
 
