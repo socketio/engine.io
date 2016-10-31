@@ -88,7 +88,7 @@ describe('server', function () {
           .end(function (res) {
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
             done();
           });
       });
@@ -100,7 +100,7 @@ describe('server', function () {
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid+ '; Path=/');
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid+ '; Path=/; HttpOnly');
             done();
           });
       });
@@ -112,9 +112,21 @@ describe('server', function () {
           .query({ transport: 'polling', b64: 1 })
           .end(function (res) {
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom; HttpOnly');
             done();
           });
+      });
+    });
+
+    it('should send the cookie with path=false', function (done) {
+      var engine = listen({ cookiePath: false }, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+            .query({ transport: 'polling', b64: 1 })
+            .end(function (res) {
+              var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+              expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+              done();
+            });
       });
     });
 
@@ -125,6 +137,18 @@ describe('server', function () {
             .end(function (res) {
               var sid = res.text.match(/"sid":"([^"]+)"/)[1];
               expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+              done();
+            });
+      });
+    });
+
+    it('should send the io cookie with httpOnly=true and path=false', function (done) {
+      var engine = listen({ cookieHttpOnly: true, cookiePath: false},function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+            .query({ transport: 'polling', b64: 1 })
+            .end(function (res) {
+              var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+              expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
               done();
             });
       });
@@ -143,12 +167,12 @@ describe('server', function () {
     });
 
     it('should send the io cookie with httpOnly not boolean', function (done) {
-      var engine = listen({ cookieHttpOnly: 'yes' },function (port) {
+      var engine = listen({ cookieHttpOnly: 'no' },function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
             .query({ transport: 'polling', b64: 1 })
             .end(function (res) {
               var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-              expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
+              expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
               done();
             });
       });
