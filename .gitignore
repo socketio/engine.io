@@ -3,3 +3,4 @@ npm-debug.log
 coverage.html
 lib-cov/
 dist
+.idea
