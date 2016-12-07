@@ -2407,7 +2407,6 @@ describe('server', function () {
   });
 
   describe('permessage-deflate', function () {
-
     it('should set threshold', function (done) {
       var engine = listen({ transports: ['websocket'], perMessageDeflate: { threshold: 0 } }, function (port) {
         engine.on('connection', function (conn) {
