@@ -47,10 +47,13 @@
     "mocha": "2.3.4",
     "s": "0.1.1",
     "superagent": "0.15.4",
-    "uws": "0.4.0"
+    "uws": "0.12.0"
+  },
+  "optionalDependencies": {
+    "uws": "0.12.0"
   },
   "scripts": {
-    "test": "gulp test; EIO_WS_ENGINE=uws gulp test;"
+    "test": "gulp test; EIO_WS_ENGINE=ws gulp test;"
   },
   "repository": {
     "type": "git",
