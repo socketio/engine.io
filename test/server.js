@@ -399,7 +399,7 @@ describe('server', function () {
     });
 
     it('should send a packet along with the handshake', function (done) {
-      listen({ initialMessage: 'faster!' }, function (port) {
+      listen({ initialPacket: 'faster!' }, function (port) {
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         socket.on('open', function () {
           socket.on('message', function (msg) {
