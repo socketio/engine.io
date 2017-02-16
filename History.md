@@ -1,4 +1,9 @@
 
+1.8.3  / 2017-02-16
+===================
+
+  * [chore] Bump ws to version 1.1.2 (vulnerability fix) (#480) (cherry-picked)
+
 1.8.2  / 2016-12-11
 ===================
 
