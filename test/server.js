@@ -2545,8 +2545,8 @@ describe('server', function () {
     });
 
     it('should handle OPTIONS requests with the given function', function (done) {
-      const handlePreflightRequest = (req, res) => {
-        let headers = {};
+      var handlePreflightRequest = function (req, res) {
+        var headers = {};
         if (req.headers.origin) {
           headers['Access-Control-Allow-Credentials'] = 'true';
           headers['Access-Control-Allow-Origin'] = req.headers.origin;
