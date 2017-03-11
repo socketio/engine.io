@@ -2542,23 +2542,82 @@ describe('server', function () {
     });
   });
 
-  if (!UWS_ENGINE && parseInt(process.versions.node, 10) >= 4) {
-    describe('wsEngine option', function () {
-      it('should allow loading of other websocket server implementation like uws', function (done) {
-        var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
-          expect(engine.ws instanceof require('uws').Server).to.be.ok();
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
-          engine.on('connection', function (conn) {
-            conn.send('a');
+  describe('cors', function () {
+    it('should handle OPTIONS requests', function (done) {
+      listen({handlePreflightRequest: true}, function (port) {
+        request.options('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
+          .query({ transport: 'polling' })
+          .end(function (res) {
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(2);
+            expect(res.body.message).to.be('Bad handshake method');
+            expect(res.header['access-control-allow-credentials']).to.be('true');
+            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            done();
           });
-          socket.on('open', function () {
-            socket.on('message', function (msg) {
-              expect(msg).to.be('a');
-              done();
-            });
+      });
+    });
+
+    it('should not handle OPTIONS requests', function (done) {
+      listen({handlePreflightRequest: false}, function (port) {
+        request.options('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
+          .query({ transport: 'polling' })
+          .end(function (res) {
+            expect(res.status).to.be(501);
+            expect(res.body.code).to.be(undefined);
+            done();
+          });
+      });
+    });
+
+    it('should handle OPTIONS requests with the given function', function (done) {
+      var handlePreflightRequest = function (req, res) {
+        var headers = {};
+        if (req.headers.origin) {
+          headers['Access-Control-Allow-Credentials'] = 'true';
+          headers['Access-Control-Allow-Origin'] = req.headers.origin;
+        } else {
+          headers['Access-Control-Allow-Origin'] = '*';
+        }
+        headers['Access-Control-Allow-Methods'] = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+        headers['Access-Control-Allow-Headers'] = 'origin, content-type, accept';
+        res.writeHead(200, headers);
+        res.end();
+      };
+      listen({handlePreflightRequest: handlePreflightRequest}, function (port) {
+        request.options('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io')
+          .query({ transport: 'polling' })
+          .end(function (res) {
+            expect(res.status).to.be(200);
+            expect(res.body).to.be.empty();
+            expect(res.header['access-control-allow-credentials']).to.be('true');
+            expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
+            expect(res.header['access-control-allow-methods']).to.be('GET,HEAD,PUT,PATCH,POST,DELETE');
+            expect(res.header['access-control-allow-headers']).to.be('origin, content-type, accept');
+            done();
+          });
+      });
+    });
+  });
+
+  describe('wsEngine option', function () {
+    it('should allow loading of other websocket server implementation like uws', function (done) {
+      var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
+        expect(engine.ws instanceof require('uws').Server).to.be.ok();
+        var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        engine.on('connection', function (conn) {
+          conn.send('a');
+        });
+        socket.on('open', function () {
+          socket.on('message', function (msg) {
+            expect(msg).to.be('a');
+            done();
           });
         });
       });
     });
-  }
+  });
 });
