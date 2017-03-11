@@ -2586,7 +2586,7 @@ describe('server', function () {
         res.writeHead(200, headers);
         res.end();
       };
-      listen({handlePreflightRequest}, function (port) {
+      listen({handlePreflightRequest: handlePreflightRequest}, function (port) {
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
