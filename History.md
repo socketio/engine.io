@@ -1,4 +1,10 @@
 
+1.8.4  / 2017-04-28
+===================
+
+  * [fix] Fix null payload when aborting connection (#503) (cherry-picked)
+  * [chore] Bump ws to version 1.1.4 (#495)
+
 1.8.3  / 2017-02-16
 ===================
 
