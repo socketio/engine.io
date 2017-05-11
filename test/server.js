@@ -2027,9 +2027,9 @@ describe('server', function () {
         });
       });
 
-      it('should execute in multipart packet', function (done) {
+      it('should execute in multipart packet (websocket)', function (done) {
         var engine = listen(function (port) {
-          var socket = new eioc.Socket('ws://localhost:%d'.s(port));
+          var socket = new eioc.Socket('ws://localhost:%d'.s(port), { transports: ['websocket'] });
           var i = 0;
           var j = 0;
 
