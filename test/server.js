@@ -1615,12 +1615,11 @@ describe('server', function () {
         key: fs.readFileSync('test/fixtures/server.key'),
         cert: fs.readFileSync('test/fixtures/server.crt'),
         ca: fs.readFileSync('test/fixtures/ca.crt'),
-        requestCert: true
+        requestCert: true,
+        rejectUnauthorized: false
       };
 
       var opts = {
-        key: fs.readFileSync('test/fixtures/client.key'),
-        cert: fs.readFileSync('test/fixtures/client.crt'),
         ca: fs.readFileSync('test/fixtures/ca.crt'),
         transports: ['polling']
       };
