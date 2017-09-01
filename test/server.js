@@ -1619,6 +1619,8 @@ describe('server', function () {
       };
 
       var opts = {
+        key: fs.readFileSync('test/fixtures/client.key'),
+        cert: fs.readFileSync('test/fixtures/client.crt'),
         ca: fs.readFileSync('test/fixtures/ca.crt'),
         transports: ['polling']
       };
