@@ -235,7 +235,7 @@ describe('server', function () {
         var customId = 'CustomId' + Date.now();
 
         engine.generateId = function (req, callback) {
-          callback(customId);
+          callback(null, customId);
         };
 
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
