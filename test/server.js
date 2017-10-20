@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable standard/no-callback-literal */
 
 /**
