@@ -123,6 +123,27 @@ describe('server', function () {
       });
     });
 
+    it('should send additional cookies', function (done) {
+      let engine = listen(function (port) {
+        engine.getAdditionalCookies = function (req) {
+          return ['additional=1234'];
+        };
+
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            // hack-obtain sid
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            console.log(res.headers['set-cookie']);
+            expect(res.headers['set-cookie'].length).to.be(2);
+            expect(res.headers['set-cookie'][0]).to.be('additional=1234');
+            expect(res.headers['set-cookie'][1]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            done();
+          });
+      });
+    });
+
     it('should send the io cookie custom name', function (done) {
       listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
