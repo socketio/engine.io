@@ -135,7 +135,6 @@ describe('server', function () {
             expect(err).to.be(null);
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            console.log(res.headers['set-cookie']);
             expect(res.headers['set-cookie'].length).to.be(2);
             expect(res.headers['set-cookie'][0]).to.be('additional=1234');
             expect(res.headers['set-cookie'][1]).to.be('io=' + sid + '; Path=/; HttpOnly');
