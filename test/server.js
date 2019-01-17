@@ -124,7 +124,7 @@ describe('server', function () {
     });
 
     it('should send additional cookies', function (done) {
-      let engine = listen(function (port) {
+      var engine = listen(function (port) {
         engine.getAdditionalCookies = function (req) {
           return ['additional=1234'];
         };
