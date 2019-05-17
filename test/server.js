@@ -2654,7 +2654,7 @@ describe('server', function () {
   describe('wsEngine option', function () {
     it('should allow loading of other websocket server implementation like uws', function (done) {
       var engine = listen({ allowUpgrades: false, wsEngine: 'uws' }, function (port) {
-        expect(engine.ws instanceof require('uws').Server).to.be.ok();
+        expect(engine.ws instanceof require('uWebSockets.js').App).to.be.ok();
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
         engine.on('connection', function (conn) {
           conn.send('a');
