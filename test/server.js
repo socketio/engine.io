@@ -804,17 +804,22 @@ describe("server", function() {
 
     it("should abort connection when upgrade fails", function(done) {
       listen({ allowUpgrades: true }, function(port) {
-        const req = http.request("http://localhost:%d/engine.io/".s(port), {
-          headers: {
-            connection: "Upgrade",
-            upgrade: "websocket"
+        const req = http.request(
+          {
+            port,
+            path: "/engine.io/",
+            headers: {
+              connection: "Upgrade",
+              upgrade: "websocket"
+            }
+          },
+          res => {
+            expect(res.statusCode).to.eql(400);
+            res.resume();
+            res.on("end", done);
           }
-        });
-        req.once("response", res => {
-          expect(res.statusCode).to.eql(400);
-          res.resume();
-          res.on("end", done);
-        });
+        );
+
         req.end();
       });
     });
