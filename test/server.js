@@ -802,8 +802,8 @@ describe("server", function() {
       });
     });
 
-    it("should abort connection when upgrade fails", function(done) {
-      listen({ allowUpgrades: true }, function(port) {
+    it("should abort connection when upgrade fails", (done) => {
+      listen({ allowUpgrades: true }, (port) => {
         const req = http.request(
           {
             port,
@@ -819,7 +819,6 @@ describe("server", function() {
             res.on("end", done);
           }
         );
-
         req.end();
       });
     });
