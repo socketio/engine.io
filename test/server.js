@@ -117,7 +117,7 @@ describe('server', function () {
             expect(err).to.be(null);
             // hack-obtain sid
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly; SameSite=Strict');
             done();
           });
       });
@@ -130,7 +130,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid + '; Path=/; HttpOnly');
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid + '; Path=/; HttpOnly; SameSite=Strict');
             done();
           });
       });
@@ -143,7 +143,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom; HttpOnly');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/custom; HttpOnly; SameSite=Strict');
             done();
           });
       });
@@ -156,7 +156,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; SameSite=Strict');
             done();
           });
       });
@@ -169,7 +169,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly; SameSite=Strict');
             done();
           });
       });
@@ -182,7 +182,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid);
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; SameSite=Strict');
             done();
           });
       });
@@ -195,7 +195,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; SameSite=Strict');
             done();
           });
       });
@@ -208,7 +208,7 @@ describe('server', function () {
           .end(function (err, res) {
             expect(err).to.be(null);
             var sid = res.text.match(/"sid":"([^"]+)"/)[1];
-            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly');
+            expect(res.headers['set-cookie'][0]).to.be('io=' + sid + '; Path=/; HttpOnly; SameSite=Strict');
             done();
           });
       });
