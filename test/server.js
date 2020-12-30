@@ -2503,7 +2503,7 @@ describe('server', function () {
     });
 
     it('should not compress when the byte size is below threshold', function (done) {
-      var engine = listen({ transports: ['websocket'] }, function (port) {
+      var engine = listen({ transports: ['websocket'], perMessageDeflate: true }, function (port) {
         engine.on('connection', function (conn) {
           var socket = conn.transport.socket;
           var send = socket.send;
