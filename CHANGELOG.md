@@ -1,3 +1,13 @@
+# [3.5.0](https://github.com/socketio/engine.io/compare/3.4.2...3.5.0) (2020-12-30)
+
+
+### Features
+
+* add support for all cookie options ([19cc582](https://github.com/socketio/engine.io/commit/19cc58264a06dca47ed401fbaca32dcdb80a903b)), closes [/github.com/jshttp/cookie#options-1](https://github.com//github.com/jshttp/cookie/issues/options-1)
+* disable perMessageDeflate by default ([5ad2736](https://github.com/socketio/engine.io/commit/5ad273601eb66c7b318542f87026837bf9dddd21))
+
+
+
 ## [3.4.2](https://github.com/socketio/engine.io/compare/3.4.1...3.4.2) (2020-06-04)
 
 
