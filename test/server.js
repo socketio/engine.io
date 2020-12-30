@@ -123,6 +123,25 @@ describe('server', function () {
       });
     });
 
+    it('should forward all cookie options', function (done) {
+      listen({ cookie: {
+        name: 'woot',
+        path: '/test',
+        httpOnly: true,
+        sameSite: 'lax'
+      }}, function (port) {
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .query({ transport: 'polling', b64: 1 })
+          .end(function (err, res) {
+            expect(err).to.be(null);
+            // hack-obtain sid
+            var sid = res.text.match(/"sid":"([^"]+)"/)[1];
+            expect(res.headers['set-cookie'][0]).to.be('woot=' + sid + '; Path=/test; HttpOnly; SameSite=Lax');
+            done();
+          });
+      });
+    });
+
     it('should send the io cookie custom name', function (done) {
       listen({ cookie: 'woot' }, function (port) {
         request.get('http://localhost:%d/engine.io/default/'.s(port))
