@@ -1092,6 +1092,24 @@ describe('server', function () {
       });
     });
 
+    it('should not timeout after an upgrade', done => {
+      const opts = { pingInterval: 200, pingTimeout: 20 };
+      const engine = listen(opts, port => {
+        const socket = new eioc.Socket('ws://localhost:%d'.s(port));
+        socket.on('open', () => {
+          setTimeout(() => {
+            socket.removeListener('close');
+            engine.close();
+            socket.close();
+            done();
+          }, 500);
+        });
+        socket.on('close', () => {
+          done(new Error('should not happen'));
+        });
+      });
+    });
+
     it('should not crash when messing with Object prototype', function (done) {
       Object.prototype.foo = 'bar'; // eslint-disable-line no-extend-native
       var engine = listen({ allowUpgrades: true }, function (port) {
