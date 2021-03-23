@@ -52,7 +52,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -82,7 +82,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -111,7 +111,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -140,7 +140,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -438,7 +438,7 @@ describe('server', function () {
             });
         });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -492,7 +492,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -504,7 +504,7 @@ describe('server', function () {
 
         // we can't send an invalid header through request.get
         // so add an invalid char here
-        engine.prepare = function(req) {
+        engine.prepare = function (req) {
           eio.Server.prototype.prepare.call(engine, req);
           req.headers.origin += '\n';
         };
@@ -529,7 +529,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
@@ -2724,7 +2724,7 @@ describe('server', function () {
             onDone();
           });
 
-        function onDone() {
+        function onDone () {
           --total || done();
         }
       });
