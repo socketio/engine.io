@@ -32,7 +32,15 @@ var UWS_ENGINE = process.env.EIO_WS_ENGINE === 'uws';
 describe('server', function () {
   describe('verification', function () {
     it('should disallow non-existent transports', function (done) {
-      listen(function (port) {
+      var engine = listen(function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Transport unknown');
+          expect(context.transport).to.be('tobi');
+          onDone();
+        });
+
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .query({ transport: 'tobi' }) // no tobi transport - outrageous
           .end(function (err, res) {
@@ -41,14 +49,26 @@ describe('server', function () {
             expect(res.body.code).to.be(0);
             expect(res.body.message).to.be('Transport unknown');
             expect(res.header['access-control-allow-origin']).to.be('*');
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
     it('should disallow `constructor` as transports', function (done) {
       // make sure we check for actual properties - not those present on every {}
-      listen(function (port) {
+      var engine = listen(function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Transport unknown');
+          expect(context.transport).to.be('constructor');
+          onDone();
+        });
+
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'constructor' })
@@ -59,13 +79,25 @@ describe('server', function () {
             expect(res.body.message).to.be('Transport unknown');
             expect(res.header['access-control-allow-credentials']).to.be('true');
             expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
     it('should disallow non-existent sids', function (done) {
-      listen(function (port) {
+      var engine = listen(function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Session ID unknown');
+          expect(context.sid).to.be('test');
+          onDone();
+        });
+
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling', sid: 'test' })
@@ -76,13 +108,25 @@ describe('server', function () {
             expect(res.body.message).to.be('Session ID unknown');
             expect(res.header['access-control-allow-credentials']).to.be('true');
             expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
     it('should disallow requests that are rejected by `allowRequest`', function (done) {
-      listen({ allowRequest: function (req, fn) { fn('Thou shall not pass', false); } }, function (port) {
+      var engine = listen({ allowRequest: function (req, fn) { fn('Thou shall not pass', false); } }, function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Forbidden');
+          expect(context.code).to.be('Thou shall not pass');
+          onDone();
+        });
+
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
@@ -93,8 +137,12 @@ describe('server', function () {
             expect(res.body.message).to.be('Thou shall not pass');
             expect(res.header['access-control-allow-credentials']).to.be(undefined);
             expect(res.header['access-control-allow-origin']).to.be(undefined);
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
@@ -357,10 +405,20 @@ describe('server', function () {
 
     it('default to polling when proxy doesn\'t support websocket', function (done) {
       var engine = listen({ allowUpgrades: false }, function (port) {
+        var total = 2;
+
         engine.on('connection', function (socket) {
           socket.on('message', function (msg) {
             if ('echo' === msg) socket.send(msg);
           });
+        });
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Bad request');
+          expect(context.name).to.be('TRANSPORT_MISMATCH');
+          expect(context.transport).to.be('websocket');
+          expect(context.previous).to.be('polling');
+          onDone();
         });
 
         var socket = new eioc.Socket('ws://localhost:%d'.s(port));
@@ -375,10 +433,14 @@ describe('server', function () {
               socket.send('echo');
               socket.on('message', function (msg) {
                 expect(msg).to.be('echo');
-                done();
+                onDone();
               });
             });
         });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
@@ -405,8 +467,18 @@ describe('server', function () {
       });
     });
 
-    it('should disallow bad requests', function (done) {
-      listen(function (port) {
+    it('should disallow bad requests (transport_handshake_error)', function (done) {
+      var engine = listen(function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Bad request');
+          expect(context.name).to.be('TRANSPORT_HANDSHAKE_ERROR');
+          expect(context.error).to.be.an(Error);
+          expect(context.error.name).to.be('TypeError');
+          onDone();
+        });
+
         request.get('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'websocket' })
@@ -417,8 +489,49 @@ describe('server', function () {
             expect(res.body.message).to.be('Bad request');
             expect(res.header['access-control-allow-credentials']).to.be('true');
             expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
+      });
+    });
+
+    it('should disallow invalid origin header', function (done) {
+      var engine = listen(function (port) {
+        var total = 2;
+
+        // we can't send an invalid header through request.get
+        // so add an invalid char here
+        engine.prepare = function(req) {
+          eio.Server.prototype.prepare.call(engine, req);
+          req.headers.origin += '\n';
+        };
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Bad request');
+          expect(context.name).to.be('INVALID_ORIGIN');
+          expect(context.origin).to.be('http://engine.io/\n');
+          onDone();
+        });
+
+        request.get('http://localhost:%d/engine.io/default/'.s(port))
+          .set('Origin', 'http://engine.io/')
+          .query({ transport: 'websocket' })
+          .end(function (err, res) {
+            expect(err).to.be.an(Error);
+            expect(res.status).to.be(400);
+            expect(res.body.code).to.be(3);
+            expect(res.body.message).to.be('Bad request');
+            expect(res.header['access-control-allow-credentials']).to.be(undefined);
+            expect(res.header['access-control-allow-origin']).to.be('*');
+            onDone();
+          });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 
@@ -2589,7 +2702,15 @@ describe('server', function () {
 
   describe('cors', function () {
     it('should handle OPTIONS requests', function (done) {
-      listen({handlePreflightRequest: true}, function (port) {
+      var engine = listen({handlePreflightRequest: true}, function (port) {
+        var total = 2;
+
+        engine.on('connection_dropped', function (reason, context) {
+          expect(reason).to.be('Bad handshake method');
+          expect(context.method).to.be('OPTIONS');
+          onDone();
+        });
+
         request.options('http://localhost:%d/engine.io/default/'.s(port))
           .set('Origin', 'http://engine.io')
           .query({ transport: 'polling' })
@@ -2600,8 +2721,12 @@ describe('server', function () {
             expect(res.body.message).to.be('Bad handshake method');
             expect(res.header['access-control-allow-credentials']).to.be('true');
             expect(res.header['access-control-allow-origin']).to.be('http://engine.io');
-            done();
+            onDone();
           });
+
+        function onDone() {
+          --total || done();
+        }
       });
     });
 

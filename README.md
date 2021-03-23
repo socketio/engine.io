@@ -203,6 +203,10 @@ The main server/manager. _Inherits from EventEmitter_.
     - Fired when a new connection is established.
     - **Arguments**
       - `Socket`: a Socket object
+- `connection_dropped`
+    - Fired when a new connection could not be established.
+    - **Arguments**
+      - `context`: A context object depending on the reason
 
 ##### Properties
 
