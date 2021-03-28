@@ -35,9 +35,11 @@ describe('server', function () {
       var engine = listen(function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Transport unknown');
-          expect(context.transport).to.be('tobi');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(0);
+          expect(err.message).to.be('Transport unknown');
+          expect(err.context.transport).to.be('tobi');
           onDone();
         });
 
@@ -63,9 +65,11 @@ describe('server', function () {
       var engine = listen(function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Transport unknown');
-          expect(context.transport).to.be('constructor');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(0);
+          expect(err.message).to.be('Transport unknown');
+          expect(err.context.transport).to.be('constructor');
           onDone();
         });
 
@@ -92,9 +96,11 @@ describe('server', function () {
       var engine = listen(function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Session ID unknown');
-          expect(context.sid).to.be('test');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(1);
+          expect(err.message).to.be('Session ID unknown');
+          expect(err.context.sid).to.be('test');
           onDone();
         });
 
@@ -121,9 +127,11 @@ describe('server', function () {
       var engine = listen({ allowRequest: function (req, fn) { fn('Thou shall not pass', false); } }, function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Forbidden');
-          expect(context.code).to.be('Thou shall not pass');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(4);
+          expect(err.message).to.be('Forbidden');
+          expect(err.context.message).to.be('Thou shall not pass');
           onDone();
         });
 
@@ -413,11 +421,13 @@ describe('server', function () {
           });
         });
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Bad request');
-          expect(context.name).to.be('TRANSPORT_MISMATCH');
-          expect(context.transport).to.be('websocket');
-          expect(context.previous).to.be('polling');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be('Bad request');
+          expect(err.context.name).to.be('TRANSPORT_MISMATCH');
+          expect(err.context.transport).to.be('websocket');
+          expect(err.context.previous).to.be('polling');
           onDone();
         });
 
@@ -471,11 +481,13 @@ describe('server', function () {
       var engine = listen(function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Bad request');
-          expect(context.name).to.be('TRANSPORT_HANDSHAKE_ERROR');
-          expect(context.error).to.be.an(Error);
-          expect(context.error.name).to.be('TypeError');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be('Bad request');
+          expect(err.context.name).to.be('TRANSPORT_HANDSHAKE_ERROR');
+          expect(err.context.error).to.be.an(Error);
+          expect(err.context.error.name).to.be('TypeError');
           onDone();
         });
 
@@ -509,10 +521,12 @@ describe('server', function () {
           req.headers.origin += '\n';
         };
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Bad request');
-          expect(context.name).to.be('INVALID_ORIGIN');
-          expect(context.origin).to.be('http://engine.io/\n');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(3);
+          expect(err.message).to.be('Bad request');
+          expect(err.context.name).to.be('INVALID_ORIGIN');
+          expect(err.context.origin).to.be('http://engine.io/\n');
           onDone();
         });
 
@@ -2705,9 +2719,11 @@ describe('server', function () {
       var engine = listen({handlePreflightRequest: true}, function (port) {
         var total = 2;
 
-        engine.on('connection_dropped', function (reason, context) {
-          expect(reason).to.be('Bad handshake method');
-          expect(context.method).to.be('OPTIONS');
+        engine.on('connection_dropped', function (err) {
+          expect(err.req).to.be.an(http.IncomingMessage);
+          expect(err.code).to.be(2);
+          expect(err.message).to.be('Bad handshake method');
+          expect(err.context.method).to.be('OPTIONS');
           onDone();
         });
 

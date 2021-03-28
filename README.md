@@ -206,7 +206,11 @@ The main server/manager. _Inherits from EventEmitter_.
 - `connection_dropped`
     - Fired when a new connection could not be established.
     - **Arguments**
-      - `context`: A context object depending on the reason
+      - `error`: an object with following properties:
+        - `req` (`http.IncomingMessage`): the request that was dropped
+        - `code` (`Number`): one of `Server`.`errors`
+        - `message` (`string`): one of `Server`.`errorMessages`
+        - `context` (`Object`): extra info from the check that dropped the connection
 
 ##### Properties
 
