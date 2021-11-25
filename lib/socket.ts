@@ -6,6 +6,14 @@ import { Server } from "./server";
 
 const debug = debugModule("engine:socket");
 
+type PacketType = "error" | "message" | "open" | "ping" | "pong";
+
+export interface Packet {
+  type: PacketType;
+  options: { compress: boolean };
+  data?: any;
+}
+
 export class Socket extends EventEmitter {
   public readonly protocol: number;
   public readonly request: IncomingMessage;
@@ -115,7 +123,7 @@ export class Socket extends EventEmitter {
    * @param {Object} packet
    * @api private
    */
-  private onPacket(packet) {
+  private onPacket(packet: Packet) {
     if ("open" !== this.readyState) {
       return debug("packet received with closed socket");
     }
@@ -440,7 +448,7 @@ export class Socket extends EventEmitter {
    * @param {Object} options
    * @api private
    */
-  private sendPacket(type, data?, options?, callback?) {
+  private sendPacket(type: PacketType, data?, options?, callback?) {
     if ("function" === typeof options) {
       callback = options;
       options = null;
@@ -452,10 +460,11 @@ export class Socket extends EventEmitter {
     if ("closing" !== this.readyState && "closed" !== this.readyState) {
       debug('sending packet "%s" (%s)', type, data);
 
-      const packet: any = {
-        type: type,
-        options: options
+      const packet: Packet = {
+        type,
+        options
       };
+
       if (data) packet.data = data;
 
       // exports packetCreate event
