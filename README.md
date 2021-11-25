@@ -1,4 +1,3 @@
-
 # Engine.IO: the realtime engine
 
 [![Build Status](https://github.com/socketio/engine.io/workflows/CI/badge.svg?branch=master)](https://github.com/socketio/engine.io/actions)
@@ -15,11 +14,11 @@ cross-browser/cross-device bi-directional communication layer for
 #### (A) Listening on a port
 
 ```js
-const engine = require('engine.io');
+const engine = require("engine.io");
 const server = engine.listen(80);
 
-server.on('connection', socket => {
-  socket.send('utf 8 string');
+server.on("connection", (socket) => {
+  socket.send("utf 8 string");
   socket.send(Buffer.from([0, 1, 2, 3, 4, 5])); // binary data
 });
 ```
@@ -27,32 +26,34 @@ server.on('connection', socket => {
 #### (B) Intercepting requests for a http.Server
 
 ```js
-const engine = require('engine.io');
-const http = require('http').createServer().listen(3000);
+const engine = require("engine.io");
+const http = require("http")
+  .createServer()
+  .listen(3000);
 const server = engine.attach(http);
 
-server.on('connection', socket => {
-  socket.on('message', data => { });
-  socket.on('close', () => { });
+server.on("connection", (socket) => {
+  socket.on("message", (data) => {});
+  socket.on("close", () => {});
 });
 ```
 
 #### (C) Passing in requests
 
 ```js
-const engine = require('engine.io');
+const engine = require("engine.io");
 const server = new engine.Server();
 
-server.on('connection', socket => {
-  socket.send('hi');
+server.on("connection", (socket) => {
+  socket.send("hi");
 });
 
 // …
-httpServer.on('upgrade', (req, socket, head) => {
+httpServer.on("upgrade", (req, socket, head) => {
   server.handleUpgrade(req, socket, head);
 });
 
-httpServer.on('request', (req, res) => {
+httpServer.on("request", (req, res) => {
   server.handleRequest(req, res);
 });
 ```
@@ -62,10 +63,10 @@ httpServer.on('request', (req, res) => {
 ```html
 <script src="/path/to/engine.io.js"></script>
 <script>
-  const socket = new eio.Socket('ws://localhost/');
-  socket.on('open', () => {
-    socket.on('message', data => {});
-    socket.on('close', () => {});
+  const socket = new eio.Socket("ws://localhost/");
+  socket.on("open", () => {
+    socket.on("message", (data) => {});
+    socket.on("close", () => {});
   });
 </script>
 ```
@@ -102,14 +103,14 @@ These are exposed by `require('engine.io')`:
 ##### Events
 
 - `flush`
-    - Called when a socket buffer is being flushed.
-    - **Arguments**
-      - `Socket`: socket being flushed
-      - `Array`: write buffer
+  - Called when a socket buffer is being flushed.
+  - **Arguments**
+    - `Socket`: socket being flushed
+    - `Array`: write buffer
 - `drain`
-    - Called when a socket buffer is drained
-    - **Arguments**
-      - `Socket`: socket being flushed
+  - Called when a socket buffer is drained
+  - **Arguments**
+    - `Socket`: socket being flushed
 
 ##### Properties
 
@@ -122,12 +123,13 @@ These are exposed by `require('engine.io')`:
 ##### Methods
 
 - `()`
-    - Returns a new `Server` instance. If the first argument is an `http.Server` then the
-      new `Server` instance will be attached to it. Otherwise, the arguments are passed
-      directly to the `Server` constructor.
-    - **Parameters**
-      - `http.Server`: optional, server to attach to.
-      - `Object`: optional, options object (see `Server#constructor` api docs below)
+
+  - Returns a new `Server` instance. If the first argument is an `http.Server` then the
+    new `Server` instance will be attached to it. Otherwise, the arguments are passed
+    directly to the `Server` constructor.
+  - **Parameters**
+    - `http.Server`: optional, server to attach to.
+    - `Object`: optional, options object (see `Server#constructor` api docs below)
 
   The following are identical ways to instantiate a server and then attach it.
 
@@ -152,46 +154,48 @@ const eioServer = require('engine.io')(httpServer, {
 ```
 
 - `listen`
-    - Creates an `http.Server` which listens on the given port and attaches WS
-      to it. It returns `501 Not Implemented` for regular http requests.
-    - **Parameters**
-      - `Number`: port to listen on.
-      - `Object`: optional, options object
-      - `Function`: callback for `listen`.
-    - **Options**
-      - All options from `Server.attach` method, documented below.
-      - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
-    - **Returns** `Server`
+  - Creates an `http.Server` which listens on the given port and attaches WS
+    to it. It returns `501 Not Implemented` for regular http requests.
+  - **Parameters**
+    - `Number`: port to listen on.
+    - `Object`: optional, options object
+    - `Function`: callback for `listen`.
+  - **Options**
+    - All options from `Server.attach` method, documented below.
+    - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
+  - **Returns** `Server`
 
 ```js
-const engine = require('engine.io');
+const engine = require("engine.io");
 const server = engine.listen(3000, {
   pingTimeout: 2000,
-  pingInterval: 10000
+  pingInterval: 10000,
 });
 
-server.on('connection', /* ... */);
+server.on("connection" /* ... */);
 ```
 
 - `attach`
-    - Captures `upgrade` requests for a `http.Server`. In other words, makes
-      a regular http.Server WebSocket-compatible.
-    - **Parameters**
-      - `http.Server`: server to attach to.
-      - `Object`: optional, options object
-    - **Options**
-      - All options from `Server.attach` method, documented below.
-      - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
-    - **Returns** `Server` a new Server instance.
+  - Captures `upgrade` requests for a `http.Server`. In other words, makes
+    a regular http.Server WebSocket-compatible.
+  - **Parameters**
+    - `http.Server`: server to attach to.
+    - `Object`: optional, options object
+  - **Options**
+    - All options from `Server.attach` method, documented below.
+    - **Additionally** See Server `constructor` below for options you can pass for creating the new Server
+  - **Returns** `Server` a new Server instance.
 
 ```js
-const engine = require('engine.io');
-const httpServer = require('http').createServer().listen(3000);
+const engine = require("engine.io");
+const httpServer = require("http")
+  .createServer()
+  .listen(3000);
 const server = engine.attach(httpServer, {
-  wsEngine: require('eiows').Server // requires having eiows as dependency
+  wsEngine: require("eiows").Server, // requires having eiows as dependency
 });
 
-server.on('connection', /* ... */);
+server.on("connection" /* ... */);
 ```
 
 #### Server
@@ -201,40 +205,42 @@ The main server/manager. _Inherits from EventEmitter_.
 ##### Events
 
 - `connection`
-    - Fired when a new connection is established.
-    - **Arguments**
-      - `Socket`: a Socket object
+
+  - Fired when a new connection is established.
+  - **Arguments**
+    - `Socket`: a Socket object
 
 - `initial_headers`
-    - Fired on the first request of the connection, before writing the response headers
-    - **Arguments**
-      - `headers` (`Object`): a hash of headers
-      - `req` (`http.IncomingMessage`): the request
+
+  - Fired on the first request of the connection, before writing the response headers
+  - **Arguments**
+    - `headers` (`Object`): a hash of headers
+    - `req` (`http.IncomingMessage`): the request
 
 - `headers`
-    - Fired on the all requests of the connection, before writing the response headers
-    - **Arguments**
-      - `headers` (`Object`): a hash of headers
-      - `req` (`http.IncomingMessage`): the request
+
+  - Fired on the all requests of the connection, before writing the response headers
+  - **Arguments**
+    - `headers` (`Object`): a hash of headers
+    - `req` (`http.IncomingMessage`): the request
 
 - `connection_error`
-    - Fired when an error occurs when establishing the connection.
-    - **Arguments**
-      - `error`: an object with following properties:
-        - `req` (`http.IncomingMessage`): the request that was dropped
-        - `code` (`Number`): one of `Server.errors`
-        - `message` (`string`): one of `Server.errorMessages`
-        - `context` (`Object`): extra info about the error
+  - Fired when an error occurs when establishing the connection.
+  - **Arguments**
+    - `error`: an object with following properties:
+      - `req` (`http.IncomingMessage`): the request that was dropped
+      - `code` (`Number`): one of `Server.errors`
+      - `message` (`string`): one of `Server.errorMessages`
+      - `context` (`Object`): extra info about the error
 
-| Code | Message |
-| ---- | ------- |
-| 0 | "Transport unknown"
-| 1 | "Session ID unknown"
-| 2 | "Bad handshake method"
-| 3 | "Bad request"
-| 4 | "Forbidden"
-| 5 | "Unsupported protocol version"
-
+| Code | Message                        |
+| ---- | ------------------------------ |
+| 0    | "Transport unknown"            |
+| 1    | "Session ID unknown"           |
+| 2    | "Bad handshake method"         |
+| 3    | "Bad request"                  |
+| 4    | "Forbidden"                    |
+| 5    | "Unsupported protocol version" |
 
 ##### Properties
 
@@ -248,74 +254,74 @@ to a single process.
 ##### Methods
 
 - **constructor**
-    - Initializes the server
-    - **Parameters**
-      - `Object`: optional, options object
-    - **Options**
-      - `pingTimeout` (`Number`): how many ms without a pong packet to
-        consider the connection closed (`20000`)
-      - `pingInterval` (`Number`): how many ms before sending a new ping
-        packet (`25000`)
-      - `upgradeTimeout` (`Number`): how many ms before an uncompleted transport upgrade is cancelled (`10000`)
-      - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
-        can be, before closing the session (to avoid DoS). Default
-        value is `1E6`.
-      - `allowRequest` (`Function`): A function that receives a given handshake
-        or upgrade request as its first parameter, and can decide whether to
-        continue or not. The second argument is a function that needs to be
-        called with the decided information: `fn(err, success)`, where
-        `success` is a boolean value where false means that the request is
-        rejected, and err is an error code.
-      - `transports` (`<Array> String`): transports to allow connections
-        to (`['polling', 'websocket']`)
-      - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
-        (`true`)
-      - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
-        (see [ws module](https://github.com/einaros/ws) api docs). Set to `true` to enable. (defaults to `false`)
-        - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
-      - `httpCompression` (`Object|Boolean`): parameters of the http compression for the polling transports
-        (see [zlib](http://nodejs.org/api/zlib.html#zlib_options) api docs). Set to `false` to disable. (`true`)
-        - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
-      - `cookie` (`Object|Boolean`): configuration of the cookie that
-        contains the client sid to send as part of handshake response
-        headers. This cookie might be used for sticky-session. Defaults to not sending any cookie (`false`).
-        See [here](https://github.com/jshttp/cookie#options-1) for all supported options.
-      - `wsEngine` (`Function`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `eiows` module.
-      - `cors` (`Object`): the options that will be forwarded to the cors module. See [there](https://github.com/expressjs/cors#configuration-options) for all available options. Defaults to no CORS allowed.
-      - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
-      - `allowEIO3` (`Boolean`): whether to support v3 Engine.IO clients (defaults to `false`)
+  - Initializes the server
+  - **Parameters**
+    - `Object`: optional, options object
+  - **Options**
+    - `pingTimeout` (`Number`): how many ms without a pong packet to
+      consider the connection closed (`20000`)
+    - `pingInterval` (`Number`): how many ms before sending a new ping
+      packet (`25000`)
+    - `upgradeTimeout` (`Number`): how many ms before an uncompleted transport upgrade is cancelled (`10000`)
+    - `maxHttpBufferSize` (`Number`): how many bytes or characters a message
+      can be, before closing the session (to avoid DoS). Default
+      value is `1E6`.
+    - `allowRequest` (`Function`): A function that receives a given handshake
+      or upgrade request as its first parameter, and can decide whether to
+      continue or not. The second argument is a function that needs to be
+      called with the decided information: `fn(err, success)`, where
+      `success` is a boolean value where false means that the request is
+      rejected, and err is an error code.
+    - `transports` (`<Array> String`): transports to allow connections
+      to (`['polling', 'websocket']`)
+    - `allowUpgrades` (`Boolean`): whether to allow transport upgrades
+      (`true`)
+    - `perMessageDeflate` (`Object|Boolean`): parameters of the WebSocket permessage-deflate extension
+      (see [ws module](https://github.com/einaros/ws) api docs). Set to `true` to enable. (defaults to `false`)
+      - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
+    - `httpCompression` (`Object|Boolean`): parameters of the http compression for the polling transports
+      (see [zlib](http://nodejs.org/api/zlib.html#zlib_options) api docs). Set to `false` to disable. (`true`)
+      - `threshold` (`Number`): data is compressed only if the byte size is above this value (`1024`)
+    - `cookie` (`Object|Boolean`): configuration of the cookie that
+      contains the client sid to send as part of handshake response
+      headers. This cookie might be used for sticky-session. Defaults to not sending any cookie (`false`).
+      See [here](https://github.com/jshttp/cookie#options-1) for all supported options.
+    - `wsEngine` (`Function`): what WebSocket server implementation to use. Specified module must conform to the `ws` interface (see [ws module api docs](https://github.com/websockets/ws/blob/master/doc/ws.md)). Default value is `ws`. An alternative c++ addon is also available by installing `eiows` module.
+    - `cors` (`Object`): the options that will be forwarded to the cors module. See [there](https://github.com/expressjs/cors#configuration-options) for all available options. Defaults to no CORS allowed.
+    - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
+    - `allowEIO3` (`Boolean`): whether to support v3 Engine.IO clients (defaults to `false`)
 - `close`
-    - Closes all clients
-    - **Returns** `Server` for chaining
+  - Closes all clients
+  - **Returns** `Server` for chaining
 - `handleRequest`
-    - Called internally when a `Engine` request is intercepted.
-    - **Parameters**
-      - `http.IncomingMessage`: a node request object
-      - `http.ServerResponse`: a node response object
-    - **Returns** `Server` for chaining
+  - Called internally when a `Engine` request is intercepted.
+  - **Parameters**
+    - `http.IncomingMessage`: a node request object
+    - `http.ServerResponse`: a node response object
+  - **Returns** `Server` for chaining
 - `handleUpgrade`
-    - Called internally when a `Engine` ws upgrade is intercepted.
-    - **Parameters** (same as `upgrade` event)
-      - `http.IncomingMessage`: a node request object
-      - `net.Stream`: TCP socket for the request
-      - `Buffer`: legacy tail bytes
-    - **Returns** `Server` for chaining
+  - Called internally when a `Engine` ws upgrade is intercepted.
+  - **Parameters** (same as `upgrade` event)
+    - `http.IncomingMessage`: a node request object
+    - `net.Stream`: TCP socket for the request
+    - `Buffer`: legacy tail bytes
+  - **Returns** `Server` for chaining
 - `attach`
-    - Attach this Server instance to an `http.Server`
-    - Captures `upgrade` requests for a `http.Server`. In other words, makes
-      a regular http.Server WebSocket-compatible.
-    - **Parameters**
-      - `http.Server`: server to attach to.
-      - `Object`: optional, options object
-    - **Options**
-      - `path` (`String`): name of the path to capture (`/engine.io`).
-      - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
-      - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
+  - Attach this Server instance to an `http.Server`
+  - Captures `upgrade` requests for a `http.Server`. In other words, makes
+    a regular http.Server WebSocket-compatible.
+  - **Parameters**
+    - `http.Server`: server to attach to.
+    - `Object`: optional, options object
+  - **Options**
+    - `path` (`String`): name of the path to capture (`/engine.io`).
+    - `destroyUpgrade` (`Boolean`): destroy unhandled upgrade requests (`true`)
+    - `destroyUpgradeTimeout` (`Number`): milliseconds after which unhandled requests are ended (`1000`)
 - `generateId`
-    - Generate a socket id.
-    - Overwrite this method to generate your custom socket id.
-    - **Parameters**
-      - `http.IncomingMessage`: a node request object
+  - Generate a socket id.
+  - Overwrite this method to generate your custom socket id.
+  - **Parameters**
+    - `http.IncomingMessage`: a node request object
   - **Returns** A socket id for connected client.
 
 <hr><br>
@@ -327,36 +333,36 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Events
 
 - `close`
-    - Fired when the client is disconnected.
-    - **Arguments**
-      - `String`: reason for closing
-      - `Object`: description object (optional)
+  - Fired when the client is disconnected.
+  - **Arguments**
+    - `String`: reason for closing
+    - `Object`: description object (optional)
 - `message`
-    - Fired when the client sends a message.
-    - **Arguments**
-      - `String` or `Buffer`: Unicode string or Buffer with binary contents
+  - Fired when the client sends a message.
+  - **Arguments**
+    - `String` or `Buffer`: Unicode string or Buffer with binary contents
 - `error`
-    - Fired when an error occurs.
-    - **Arguments**
-      - `Error`: error object
+  - Fired when an error occurs.
+  - **Arguments**
+    - `Error`: error object
 - `flush`
-    - Called when the write buffer is being flushed.
-    - **Arguments**
-      - `Array`: write buffer
+  - Called when the write buffer is being flushed.
+  - **Arguments**
+    - `Array`: write buffer
 - `drain`
-    - Called when the write buffer is drained
+  - Called when the write buffer is drained
 - `packet`
-    - Called when a socket received a packet (`message`, `ping`)
-    - **Arguments**
-      - `type`: packet type
-      - `data`: packet data (if type is message)
+  - Called when a socket received a packet (`message`, `ping`)
+  - **Arguments**
+    - `type`: packet type
+    - `data`: packet data (if type is message)
 - `packetCreate`
-    - Called before a socket sends a packet (`message`, `ping`)
-    - **Arguments**
-      - `type`: packet type
-      - `data`: packet data (if type is message)
+  - Called before a socket sends a packet (`message`, `ping`)
+  - **Arguments**
+    - `type`: packet type
+    - `data`: packet data (if type is message)
 - `heartbeat`
-    - Called when `ping` or `pong` packed is received (depends of client version)
+  - Called when `ping` or `pong` packed is received (depends of client version)
 
 ##### Properties
 
@@ -370,18 +376,18 @@ A representation of a client. _Inherits from EventEmitter_.
 ##### Methods
 
 - `send`:
-    - Sends a message, performing `message = toString(arguments[0])` unless
-      sending binary data, which is sent as is.
-    - **Parameters**
-      - `String` | `Buffer` | `ArrayBuffer` | `ArrayBufferView`: a string or any object implementing `toString()`, with outgoing data, or a Buffer or ArrayBuffer with binary data. Also any ArrayBufferView can be sent as is.
-      - `Object`: optional, options object
-      - `Function`: optional, a callback executed when the message gets flushed out by the transport
-    - **Options**
-      - `compress` (`Boolean`): whether to compress sending data. This option might be ignored and forced to be `true` when using polling. (`true`)
-    - **Returns** `Socket` for chaining
+  - Sends a message, performing `message = toString(arguments[0])` unless
+    sending binary data, which is sent as is.
+  - **Parameters**
+    - `String` | `Buffer` | `ArrayBuffer` | `ArrayBufferView`: a string or any object implementing `toString()`, with outgoing data, or a Buffer or ArrayBuffer with binary data. Also any ArrayBufferView can be sent as is.
+    - `Object`: optional, options object
+    - `Function`: optional, a callback executed when the message gets flushed out by the transport
+  - **Options**
+    - `compress` (`Boolean`): whether to compress sending data. This option might be ignored and forced to be `true` when using polling. (`true`)
+  - **Returns** `Socket` for chaining
 - `close`
-    - Disconnects the client
-    - **Returns** `Socket` for chaining
+  - Disconnects the client
+  - **Returns** `Socket` for chaining
 
 ### Client
 
@@ -417,9 +423,10 @@ DEBUG=engine* node myapp
 ## Support
 
 The support channels for `engine.io` are the same as `socket.io`:
-  - irc.freenode.net **#socket.io**
-  - [Google Groups](http://groups.google.com/group/socket_io)
-  - [Website](http://socket.io)
+
+- irc.freenode.net **#socket.io**
+- [Google Groups](http://groups.google.com/group/socket_io)
+- [Website](http://socket.io)
 
 ## Development
 
@@ -463,48 +470,49 @@ the same solution.
 WebSocket based connections have two fundamental benefits:
 
 1. **Better server performance**
-  - _A: Load balancers_<br>
-      Load balancing a long polling connection poses a serious architectural nightmare
-      since requests can come from any number of open sockets by the user agent, but
-      they all need to be routed to the process and computer that owns the `Engine`
-      connection. This negatively impacts RAM and CPU usage.
-  - _B: Network traffic_<br>
-      WebSocket is designed around the premise that each message frame has to be
-      surrounded by the least amount of data. In HTTP 1.1 transports, each message
-      frame is surrounded by HTTP headers and chunked encoding frames. If you try to
-      send the message _"Hello world"_ with xhr-polling, the message ultimately
-      becomes larger than if you were to send it with WebSocket.
-  - _C: Lightweight parser_<br>
-      As an effect of **B**, the server has to do a lot more work to parse the network
-      data and figure out the message when traditional HTTP requests are used
-      (as in long polling). This means that another advantage of WebSocket is
-      less server CPU usage.
+
+- _A: Load balancers_<br>
+  Load balancing a long polling connection poses a serious architectural nightmare
+  since requests can come from any number of open sockets by the user agent, but
+  they all need to be routed to the process and computer that owns the `Engine`
+  connection. This negatively impacts RAM and CPU usage.
+- _B: Network traffic_<br>
+  WebSocket is designed around the premise that each message frame has to be
+  surrounded by the least amount of data. In HTTP 1.1 transports, each message
+  frame is surrounded by HTTP headers and chunked encoding frames. If you try to
+  send the message _"Hello world"_ with xhr-polling, the message ultimately
+  becomes larger than if you were to send it with WebSocket.
+- _C: Lightweight parser_<br>
+  As an effect of **B**, the server has to do a lot more work to parse the network
+  data and figure out the message when traditional HTTP requests are used
+  (as in long polling). This means that another advantage of WebSocket is
+  less server CPU usage.
 
 2. **Better user experience**
 
-    Due to the reasons stated in point **1**, the most important effect of being able
-    to establish a WebSocket connection is raw data transfer speed, which translates
-    in _some_ cases in better user experience.
+   Due to the reasons stated in point **1**, the most important effect of being able
+   to establish a WebSocket connection is raw data transfer speed, which translates
+   in _some_ cases in better user experience.
 
-    Applications with heavy realtime interaction (such as games) will benefit greatly,
-    whereas applications like realtime chat (Gmail/Facebook), newsfeeds (Facebook) or
-    timelines (Twitter) will have negligible user experience improvements.
+   Applications with heavy realtime interaction (such as games) will benefit greatly,
+   whereas applications like realtime chat (Gmail/Facebook), newsfeeds (Facebook) or
+   timelines (Twitter) will have negligible user experience improvements.
 
 Having said this, attempting to establish a WebSocket connection directly so far has
 proven problematic:
 
 1. **Proxies**<br>
-    Many corporate proxies block WebSocket traffic.
+   Many corporate proxies block WebSocket traffic.
 
 2. **Personal firewall and antivirus software**<br>
-    As a result of our research, we've found that at least 3 personal security
-    applications block WebSocket traffic.
+   As a result of our research, we've found that at least 3 personal security
+   applications block WebSocket traffic.
 
 3. **Cloud application platforms**<br>
-    Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
-    nature of the evolution of the WebSocket protocol. Applications therefore end up
-    inevitably using long polling, but the seamless installation experience of
-    Socket.IO we strive for (_"require() it and it just works"_) disappears.
+   Platforms like Heroku or No.de have had trouble keeping up with the fast-paced
+   nature of the evolution of the WebSocket protocol. Applications therefore end up
+   inevitably using long polling, but the seamless installation experience of
+   Socket.IO we strive for (_"require() it and it just works"_) disappears.
 
 Some of these problems have solutions. In the case of proxies and personal programs,
 however, the solutions many times involve upgrading software. Experience has shown
