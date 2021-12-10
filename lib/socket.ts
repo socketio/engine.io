@@ -223,7 +223,7 @@ export class Socket extends EventEmitter {
     // this function will manage packet events (also message callbacks)
     this.setupSendCallback();
 
-    this.cleanupFn.push(function () {
+    this.cleanupFn.push(function() {
       transport.removeListener("error", onError);
       transport.removeListener("packet", onPacket);
       transport.removeListener("drain", flush);
@@ -343,7 +343,7 @@ export class Socket extends EventEmitter {
     }
 
     // silence further transport errors and prevent uncaught exceptions
-    this.transport.on("error", function () {
+    this.transport.on("error", function() {
       debug("error triggered by discarded transport");
     });
 
