@@ -1,6 +1,6 @@
 import debugModule from "debug";
 import { AttachOptions, BaseServer, Server } from "./server";
-import { HttpRequest, HttpResponse } from "uWebSockets.js";
+import { HttpRequest, HttpResponse, CompressOptions } from "uWebSockets.js";
 import transports from "./transports-uws";
 
 const debug = debugModule("engine:uws");
@@ -39,13 +39,17 @@ export class uServer extends BaseServer {
    * @param app
    * @param options
    */
-  public attach(app /* : TemplatedApp */, options: AttachOptions = {}) {
+  public attach(
+    app /* : TemplatedApp */,
+    options: AttachOptions & Partial<{ compression: CompressOptions }> = {}
+  ) {
     const path = (options.path || "/engine.io").replace(/\/$/, "") + "/";
 
     app
       .any(path, this.handleRequest.bind(this))
       //
       .ws(path, {
+        compression: options.compression,
         maxPayloadLength: this.opts.maxHttpBufferSize,
         upgrade: this.handleUpgrade.bind(this),
         open: ws => {
