@@ -1,3 +1,25 @@
+## [5.2.1](https://github.com/socketio/engine.io/compare/5.2.0...5.2.1) (2022-01-11)
+
+:warning: This release contains an important security fix :warning:
+
+A malicious client could send a specially crafted HTTP request, triggering an uncaught exception and killing the Node.js process:
+
+> RangeError: Invalid WebSocket frame: RSV2 and RSV3 must be clear
+>   at Receiver.getInfo (/.../node_modules/ws/lib/receiver.js:176:14)
+>   at Receiver.startLoop (/.../node_modules/ws/lib/receiver.js:136:22)
+>   at Receiver._write (/.../node_modules/ws/lib/receiver.js:83:10)
+>   at writeOrBuffer (internal/streams/writable.js:358:12)
+
+This bug was introduced by [this commit](https://github.com/socketio/engine.io/commit/f3c291fa613a9d50c924d74293035737fdace4f2), included in `engine.io@4.0.0`, so previous releases are not impacted.
+
+Thanks to Marcus Wejderot from Mevisio for the responsible disclosure.
+
+### Bug Fixes
+
+* properly handle invalid data sent by a malicious websocket client ([66f889f](https://github.com/socketio/engine.io/commit/66f889fc1d966bf5bfa0de1939069153643874ab))
+
+
+
 # [5.2.0](https://github.com/socketio/engine.io/compare/5.1.1...5.2.0) (2021-08-29)
 
 No change on the server-side, this matches the client release.
