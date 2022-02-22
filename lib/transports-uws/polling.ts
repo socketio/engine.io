@@ -146,15 +146,6 @@ export class Polling extends Transport {
     let buffer;
     let contentLength = 0;
 
-    const cleanup = () => {
-      this.dataReq = this.dataRes = null;
-    };
-
-    const onClose = () => {
-      cleanup();
-      this.onError("data request connection closed prematurely");
-    };
-
     const headers = {
       // text/html is required instead of text/plain to avoid an
       // unwanted download dialog on certain user-agents (GH-43)
@@ -162,20 +153,20 @@ export class Polling extends Transport {
     };
 
     this.headers(req, headers);
-    Object.keys(headers).forEach(key => {
+    for (let key in headers) {
       res.writeHeader(key, String(headers[key]));
-    });
+    }
 
     const onEnd = (buffer) => {
       this.onData(buffer.toString());
-
-      if (this.readyState !== "closing") {
-        res.end("ok");
-      }
-      cleanup();
+      this.onDataRequestCleanup();
+      res.end("ok");
     };
 
-    res.onAborted(onClose);
+    res.onAborted(() => {
+      this.onDataRequestCleanup();
+      this.onError("data request connection closed prematurely");
+    });
 
     res.onData((arrayBuffer, isLast) => {
       const totalLength = contentLength + arrayBuffer.byteLength;
@@ -199,7 +190,7 @@ export class Polling extends Transport {
         if (totalLength != contentLengthHeader) {
           this.onError("content-length mismatch");
           res.writeStatus("400 content-length mismatch").end();
-          cleanup();
+          this.onDataRequestCleanup();
           return;
         }
         onEnd(buffer);
@@ -208,6 +199,15 @@ export class Polling extends Transport {
 
       contentLength = totalLength;
     });
+  }
+
+  /**
+   * Cleanup onDataRequest.
+   *
+   * @api private
+   */
+  onDataRequestCleanup() {
+    this.dataReq = this.dataRes = null;
   }
 
   /**
