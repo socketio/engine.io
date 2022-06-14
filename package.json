@@ -42,6 +42,10 @@
     "engine.io-parser": "~5.0.3",
     "ws": "~8.2.3"
   },
+  "optionalDependencies" : {
+    "bufferutil": "^4.0.6",
+    "utf-8-validate": "^5.0.9"
+  },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "eiows": "^3.8.0",
