@@ -31,6 +31,12 @@ export interface AttachOptions {
    * @default 1000
    */
   destroyUpgradeTimeout?: number;
+
+  /**
+   * Should we add a trailing slash to the path?
+   * @default true
+   */
+  trailingSlash?: boolean;
 }
 
 export interface ServerOptions {
@@ -638,9 +644,10 @@ export class Server extends BaseServer {
     let path = (options.path || "/engine.io").replace(/\/$/, "");
 
     const destroyUpgradeTimeout = options.destroyUpgradeTimeout || 1000;
+    const trailingSlash = options.trailingSlash || true;
 
     // normalize path
-    path += "/";
+    path += trailingSlash ? "/" : "";
 
     function check(req) {
       return path === req.url.slice(0, path.length);
