@@ -1,3 +1,12 @@
+## [3.6.1](https://github.com/socketio/engine.io/compare/3.6.0...3.6.1) (2022-11-20)
+
+
+### Bug Fixes
+
+* catch errors when destroying invalid upgrades ([83c4071](https://github.com/socketio/engine.io/commit/83c4071af871fc188298d7d591e95670bf9f9085))
+
+
+
 # [3.6.0](https://github.com/socketio/engine.io/compare/3.5.0...3.6.0) (2022-06-06)
 
 
