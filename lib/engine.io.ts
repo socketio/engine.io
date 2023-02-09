@@ -1,10 +1,10 @@
 import { createServer } from "http";
-import { Server, AttachOptions, ServerOptions } from "./server";
+import { Server, AttachOptions, ServerOptions, BaseServer } from "./server";
 import transports from "./transports/index";
 import * as parser from "engine.io-parser";
 
 export { Server, transports, listen, attach, parser };
-export { AttachOptions, ServerOptions } from "./server";
+export { AttachOptions, ServerOptions, BaseServer } from "./server";
 export { uServer } from "./userver";
 export { Socket } from "./socket";
 export { Transport } from "./transport";
