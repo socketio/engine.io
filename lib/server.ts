@@ -117,6 +117,11 @@ export interface ServerOptions {
    * @default false
    */
   allowEIO3?: boolean;
+  /**
+   * whether to use 409 for overlap errors
+   * @default false
+   */
+  downgradeOverlapStatus?: boolean;
 }
 
 export abstract class BaseServer extends EventEmitter {
@@ -152,6 +157,7 @@ export abstract class BaseServer extends EventEmitter {
         },
         cors: false,
         allowEIO3: false,
+        downgradeOverlapStatus: false,
       },
       opts
     );
@@ -511,7 +517,7 @@ export class Server extends BaseServer {
   }
 
   protected createTransport(transportName, req) {
-    return new transports[transportName](req);
+    return new transports[transportName](req, this.opts.downgradeOverlapStatus);
   }
 
   /**

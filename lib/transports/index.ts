@@ -13,11 +13,11 @@ export default {
  * @api private
  */
 
-function polling(req) {
+function polling(req, downgradeOverlapStatus?: boolean) {
   if ("string" === typeof req._query.j) {
-    return new JSONP(req);
+    return new JSONP(req, downgradeOverlapStatus);
   } else {
-    return new XHR(req);
+    return new XHR(req, downgradeOverlapStatus);
   }
 }
 

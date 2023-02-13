@@ -22,15 +22,18 @@ export class Polling extends Transport {
 
   private readonly closeTimeout: number;
 
+  private readonly downgradeOverlapStatus: boolean;
+
   /**
    * HTTP polling constructor.
    *
    * @api public.
    */
-  constructor(req) {
+  constructor(req, downgradeOverlapStatus: boolean = false) {
     super(req);
 
     this.closeTimeout = 30 * 1000;
+    this.downgradeOverlapStatus = downgradeOverlapStatus;
   }
 
   /**
@@ -75,8 +78,7 @@ export class Polling extends Transport {
       debug("request overlap");
       // assert: this.res, '.req and .res should be (un)set together'
       this.onError("overlap from client");
-      // TODO for the next major release: use an HTTP 400 status code (https://github.com/socketio/engine.io/issues/650)
-      res.writeHead(500);
+      this.downgradeOverlapStatus ? res.writeHead(409) : res.writeHead(500);
       res.end();
       return;
     }
@@ -117,8 +119,7 @@ export class Polling extends Transport {
     if (this.dataReq) {
       // assert: this.dataRes, '.dataReq and .dataRes should be (un)set together'
       this.onError("data request overlap from client");
-      // TODO for the next major release: use an HTTP 400 status code (https://github.com/socketio/engine.io/issues/650)
-      res.writeHead(500);
+      this.downgradeOverlapStatus ? res.writeHead(409) : res.writeHead(500);
       res.end();
       return;
     }

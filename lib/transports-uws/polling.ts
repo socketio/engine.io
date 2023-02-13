@@ -22,15 +22,18 @@ export class Polling extends Transport {
 
   private readonly closeTimeout: number;
 
+  private readonly downgradeOverlapStatus: boolean;
+
   /**
    * HTTP polling constructor.
    *
    * @api public.
    */
-  constructor(req) {
+  constructor(req, downgradeOverlapStatus: boolean = false) {
     super(req);
 
     this.closeTimeout = 30 * 1000;
+    this.downgradeOverlapStatus = downgradeOverlapStatus;
   }
 
   /**
@@ -76,7 +79,7 @@ export class Polling extends Transport {
       debug("request overlap");
       // assert: this.res, '.req and .res should be (un)set together'
       this.onError("overlap from client");
-      res.writeStatus("500 Internal Server Error");
+      this.downgradeOverlapStatus ? res.writeStatus("409 Conflict") : res.writeStatus("500 Internal Server Error");
       res.end();
       return;
     }
@@ -117,7 +120,7 @@ export class Polling extends Transport {
     if (this.dataReq) {
       // assert: this.dataRes, '.dataReq and .dataRes should be (un)set together'
       this.onError("data request overlap from client");
-      res.writeStatus("500 Internal Server Error");
+      this.downgradeOverlapStatus ? res.writeStatus("409 Conflict") : res.writeStatus("500 Internal Server Error");
       res.end();
       return;
     }

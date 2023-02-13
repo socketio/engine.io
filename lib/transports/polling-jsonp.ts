@@ -13,8 +13,8 @@ export class JSONP extends Polling {
    *
    * @api public
    */
-  constructor(req) {
-    super(req);
+  constructor(req, downgradeOverlapStatus?: boolean) {
+    super(req, downgradeOverlapStatus);
 
     this.head = "___eio[" + (req._query.j || "").replace(/[^0-9]/g, "") + "](";
     this.foot = ");";
