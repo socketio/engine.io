@@ -283,6 +283,7 @@ to a single process.
       - `cors` (`Object`): the options that will be forwarded to the cors module. See [there](https://github.com/expressjs/cors#configuration-options) for all available options. Defaults to no CORS allowed.
       - `initialPacket` (`Object`): an optional packet which will be concatenated to the handshake packet emitted by Engine.IO.
       - `allowEIO3` (`Boolean`): whether to support v3 Engine.IO clients (defaults to `false`)
+      - `downgradeOverlapStatus` (`Boolean`): whether to downgrade polling overlap error status from 500 to 409 (defaults to `false`)
 - `close`
     - Closes all clients
     - **Returns** `Server` for chaining
