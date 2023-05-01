@@ -346,8 +346,7 @@ export abstract class BaseServer extends EventEmitter {
       debug("applying middleware n°%d", i + 1);
       this.middlewares[i](req, res, (err?: any) => {
         if (err) {
-          callback(err);
-          return;
+          return callback(err);
         }
 
         if (i + 1 < this.middlewares.length) {
@@ -660,7 +659,7 @@ export class Server extends BaseServer {
       }
     };
 
-    this._applyMiddlewares(req, res, (err?: any) => {
+    this._applyMiddlewares(req, res, (err) => {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {
@@ -707,7 +706,7 @@ export class Server extends BaseServer {
       });
     };
 
-    this._applyMiddlewares(req, res as unknown as ServerResponse, (err?: any) => {
+    this._applyMiddlewares(req, res as unknown as ServerResponse, (err) => {
       if (err) {
         callback(Server.errors.BAD_REQUEST, { name: "MIDDLEWARE_FAILURE" });
       } else {

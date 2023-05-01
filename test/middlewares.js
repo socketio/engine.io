@@ -287,8 +287,8 @@ describe("middlewares", () => {
             engine.httpServer.close();
           }
           done();
-        })
+        });
       });
-    })
+    });
   });
 });
