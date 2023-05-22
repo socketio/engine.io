@@ -214,9 +214,9 @@ export class uServer extends BaseServer {
         {
           transport,
         },
-        req.getHeader("sec-websocket-key"),
-        req.getHeader("sec-websocket-protocol"),
-        req.getHeader("sec-websocket-extensions"),
+        req.headers["sec-websocket-key"],
+        req.headers["sec-websocket-protocol"],
+        req.headers["sec-websocket-extensions"],
         context
       );
     };
