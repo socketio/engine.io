@@ -155,7 +155,7 @@ export class uServer extends BaseServer {
 
   private handleUpgrade(
     res: HttpResponse,
-    req: HttpRequest & { res: any; _query: any, headers: any },
+    req: HttpRequest & { res: any; _query: any; headers: any },
     context
   ) {
     debug("on upgrade");
