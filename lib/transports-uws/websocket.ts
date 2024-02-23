@@ -43,7 +43,7 @@ export class WebSocket extends Transport {
    * @api public
    */
   get supportsFraming() {
-    return true;
+    return false;
   }
 
   /**
