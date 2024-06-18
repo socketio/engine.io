@@ -30,7 +30,7 @@
     "cookie": "~0.4.1",
     "debug": "~4.1.0",
     "engine.io-parser": "~2.2.0",
-    "ws": "~7.4.2"
+    "ws": "~7.5.10"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
