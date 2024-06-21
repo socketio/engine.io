@@ -6,6 +6,6 @@
   "type": "module",
   "dependencies": {
     "@fails-components/webtransport": "^0.3.1",
-    "engine.io-client": "^6.5.3"
+    "engine.io-client": "^6.6.0"
   }
 }
